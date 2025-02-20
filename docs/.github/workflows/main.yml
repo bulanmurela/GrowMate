@@ -1,0 +1,14 @@
+name: Basic CI Check
+
+on: [push, pull_request]
+
+jobs:
+  check-files:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+
+      - name: Check repository structure
+        run: ls -la
