@@ -8,8 +8,6 @@ Anggota 3: Tsabitah Inayah - 22/498733/TK/54717
 ### Project Senior Project TI
 Departemen Teknik Elektro dan Teknologi Informasi, Fakultas Teknik, Universitas Gadjah Mada
 
-# GrowMate
-
 ## Latar Belakang
 Usaha Mikro, Kecil, dan Menengah (UMKM), adalah sebuah usaha yang berada di Indonesia, yang berskala kecil, dalam segi perputaran uang. Dari total 26 juta UMKM non-pertanian, usaha retail (eceran) atau yang biasa disebut sebagai Fast Moving Consumer Goods (FMCG) mendominasi sebesar 46% dari total UMKM di Indonesia. Selain itu, statistik dari Statista menunjukkan bahwa terdapat pertumbuhan rata-rata tahunan (CAGR) pada sektor usaha ini di Indonesia sebesar 2.77%, sementara pada kuartal keempat 2024, menunjukkan pertumbuhan hingga 6.1%.  
 Data survey dari Deloitte mengatakan bahwa 69% usaha melakukan akselerasi transformasi digital selama pasca Covid-19. Banyak di antaranya bertransformasi untuk menggunakan Enterprise Resource Planning (ERP) untuk membantu operasional usahanya sehari-hari. Deloitte mengatakan bahwa walaupun ERP perusahaan dapat dikembangkan sendiri, investasi ini memakan waktu dan biaya yang lama. Oleh karena itu, hadirlah ERP-as-a-Service, dimana sebuah platform layanan ERP hadir untuk memecahkan permasalahan bisnis tanpa harus memakan waktu lama dalam pengembangan dan biaya, karena dengan ERP-as-a-Service, pemilik usaha menggunakan jasa penyedia ERP yang telah difokuskan pada sektor industri yang spesifik.  
@@ -43,3 +41,57 @@ Odoo adalah jenis direct competitor yang memiliki produk layanan ERP yang terint
 SAP Business One adalah jenis direct competitor yang memiliki produk ERP Software berbasis desktop dan cloud, serta menargetkan bisnis skala kecil hingga menengah. SAP Business One menawarkan layanan ERP yang terintegrasi dan lengkap mencakup berbagai aspek bisnis, serta analisis bisnis yang cerdas menggunakan AI dan dikenal secara global. Namun, SAP Business One memiliki lisensi yang cukup mahal untuk UMKM.  
 3. TrendWatching  
 Trendwatching adalah jenis indirect competitor yang memiliki layanan trend tracking & reporting. TrendWatching menargetkan usaha kecil, menengah, dan besar. TrendWatching menawarkan laporan tren yang lengkap, terstruktur, dan langsung dengan bantuan AI. Namun, penggunaan AI terbatas dan tidak dapat melakukan monitoring rantai pasok dan penjualan.
+
+# Software Development Life Cycle (SDLC)
+
+## Metodologi yang Digunakan
+
+### Alasan Pemilihan Metodologi
+
+## Tujuan Produk
+Website GrowMate bertujuan untuk membantu UMKM dalam memahami trend pasar dan manajemen stok melalui analisis data dengan AI untuk mengoptimalkan penjualan. Dengan memanfaatkan data penjualan pribadi dan analisis tren pasar dari berbagai sosial media, sistem dapat memberikan rekomendasi yang tepat terkait manajemen stok produk dan strategi promosi. Dengan GrowMate maka pedagang UMKM dapat: 
+- Mengambil keputusan bisnis yang lebih tepat dan menguntungkan 
+- Mengurangi risiko overstock, understock, atau stockout karena adanya analisis untuk manajemen stok, sehingga menghindari kerugian stok yang tidak sesuai dengan pasar. 
+- Meningkatkan efisiensi operasional dengan memberikan informasi akurat mengenai performa penjualan produk berdasarkan data penjualan pribadi 
+- Meningkatkan profitabilitas dengan strategi manajemen stok yang lebih efisien dan sesuai permintaan. 
+Dengan website GrowMate sebagai solusi untuk mengoptimalkan penjualan, UMKM dapat bertahan dan kompetitif menyesuaikan dinamika pasar yang terus berubah, serta memiliki strategi yang siap untuk menghadapi tantangan dan ancaman bisnis mereka. 
+
+## Pengguna Potensial Produk dan Kebutuhannya
+Pengguna potensial website GrowMate adalah:
+1. Pemilik UMKM: Pedagang atau pemilik usaha online maupun offline. Kebutuhan pengguna ini yaitu:
+    - Mengetahui produk-produk yang sedang populer atau tren di pasar 
+    - Menganilis performa penjualan produk berdasarkan data penjualan mereka 
+    - Menghindari kerugian akibat overstock, understock, atau stockout 
+2. Distributor, supplier: Pelaku usaha yang memasok barang atau produk ke berbagai UMKM. Kebutuhan pengguna ini adalah: 
+    - Mengetahui dan memahami barang apa yang paling banyak dibutuhkan oleh UMKM 
+    - Menyesuaikan pasokan barang sesuai tren pasar 
+    - Memastikan ketersediaan produk dalam rantai pasokan 
+3. Reseller: Pengguna yang menjual kembali dari penjual utama. Pengguna ini memiliki kebutuhan untuk: 
+    - Mengetahui tren penjualan di pasar untuk mengetahui produk apa yang sesuai untuk dibeli dan dijual kembali 
+    - Menghindari kerugian akibat pembelian produk dalam jumlah banyak yang kurang laku di pasaran 
+4. Manajer operasional dan logistik: Manajer toko atau bisnis yang bertanggung jawab dalam mengelola stok produk dan suplai barang. Pengguna ini memiliki kebutuhan yaitu: 
+    - Mengetahui tren pasar untuk menjaga keseimbangan stok agar tidak lebih atau kurang 
+    - Mengetahui kapan harus melakukan restock produk 
+    - Mengoptimalkan penyimpanan dan distribusi barang  
+
+## Use Case Diagram
+
+## Functional Requirements
+
+## Entity Relationship Diagram
+![ERD](docs/images/GrowMateERD.png)
+
+## Low-Fidelity Wireframe
+1. Landing Page
+    ![Lo-Fi Landing Page](docs/images/LandingPageWireframe.png)
+2. Beranda
+    ![Lo-Fi Beranda](docs/images/BerandaWireframe.png)
+3. Signup
+    ![Lo-Fi Daftar](docs/images/DaftarWireframe.png)
+4. Login
+    ![Lo-Fi Login](docs/images/LandingPageWireframe.png)
+5. Fitur
+    ![Lo-Fi Fitur](docs/images/FiturWireframe.png)
+
+## Gantt-Chart Pengerjaan Proyek
+![Lo-Fi Gantt-Chart](docs/images/GanttChart.png)
