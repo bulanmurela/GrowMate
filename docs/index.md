@@ -45,8 +45,54 @@ Trendwatching adalah jenis indirect competitor yang memiliki layanan trend track
 # Software Development Life Cycle (SDLC)
 
 ## Metodologi yang Digunakan
+Metodologi Pengembangan Website GrowMate: Agile (Scrum) 
+Penjelasan Metodologi Agile (Scrum) 
+Agile adalah metode pengembangan perangkat lunak yang bersifat adaptif, iteratif, dan kolaboratif. Agile memungkinkan pengembangan berbasis siklus pendek (iterasi) sehingga fitur dapat diuji, diperbaiki, dan ditingkatkan secara terus-menerus berdasarkan feedback pengguna. 
+Dalam konteks Scrum, pengembangan GrowMate akan dibagi menjadi beberapa Sprint, yaitu periode pengembangan singkat (2-4 minggu) di mana fitur tertentu dikembangkan, diuji, dan dievaluasi sebelum masuk ke Sprint berikutnya. 
+
+Tahapan dalam Scrum 
+1. Product Backlog 
+- Berisi daftar fitur utama yang akan dikembangkan untuk GrowMate, seperti:  
+    - Analisis tren stok dan pola permintaan 
+    - Prediksi stok optimal 
+    - Dashboard analisis stok berbasis AI 
+    - Rekomendasi manajemen stok berdasarkan tren pasar 
+
+2. Sprint Planning 
+- Tim mengidentifikasi fitur-fitur prioritas yang akan dikerjakan dalam Sprint pertama. 
+    Misalnya, Sprint pertama dapat berfokus pada pengelompokan produk berdasarkan pola permintaan, sebelum masuk ke fitur AI yang lebih kompleks. 
+
+3. Sprint Execution & Daily Stand-up 
+    Tim pengembang (developer, data scientist, UI/UX, dan product manager) bekerja mengembangkan fitur dalam Sprint. 
+- Setiap hari dilakukan Daily Stand-up Meeting untuk mengevaluasi progres dan mengatasi hambatan. 
+
+4. Sprint Review & Testing 
+- Setelah Sprint selesai, fitur diuji dan didemokan kepada stakeholder (pemilik UMKM atau tim internal). 
+- Feedback dikumpulkan untuk perbaikan sebelum masuk ke Sprint berikutnya. 
+
+5. Sprint Retrospective 
+- Evaluasi tim untuk mengidentifikasi apa yang bisa diperbaiki dalam Sprint berikutnya. 
+    Misalnya, jika akurasi prediksi stok masih rendah, maka pendekatan model AI bisa diperbaiki di iterasi selanjutnya. 
+
+6. Deployment dan Continuous Integration 
+- Fitur yang sudah stabil akan langsung diintegrasikan ke platform GrowMate. 
+- Dengan sistem Continuous Deployment, tim dapat merilis versi baru tanpa harus menunggu seluruh pengembangan selesai. 
 
 ### Alasan Pemilihan Metodologi
+1. Fokus pada Kebutuhan Pengguna 
+GrowMate ditujukan untuk membantu UMKM dalam mengelola stok dan memahami tren pasar. Agile memungkinkan pengembangan berbasis umpan balik pengguna secara kontinu, sehingga fitur dapat disesuaikan dengan kebutuhan UMKM yang selalu berubah. 
+
+2. Pengembangan Berbasis Iterasi 
+Dengan Scrum, pengembangan dilakukan dalam sprint (biasanya 2-4 minggu), di mana fitur penting dapat dikembangkan lebih dulu dan diuji sebelum fitur lainnya ditambahkan. Hal ini cocok untuk GrowMate yang mengandalkan fitur AI & Data Analytics, karena pengujian model prediksi dapat dilakukan lebih awal. 
+
+3. Respon Cepat terhadap Perubahan 
+Dunia UMKM dan tren pasar berubah dengan cepat. Agile memungkinkan tim untuk merespons perubahan tren dan permintaan pasar dengan menyesuaikan roadmap proyek secara fleksibel. 
+
+4. Kolaborasi yang Kuat 
+Dalam pengembangan GrowMate, keterlibatan tim pengembang, data scientist, dan stakeholder UMKM sangat penting. Scrum memastikan komunikasi dan transparansi antar tim melalui daily stand-up dan sprint review. 
+
+5. Peningkatan Berkelanjutan & Deployment Cepat 
+Dengan pendekatan incremental, GrowMate bisa dirilis lebih awal dalam versi MVP (Minimum Viable Product) dengan fitur dasar, seperti analisis stok dan prediksi tren, kemudian diperbarui dengan fitur AI yang lebih canggih di iterasi selanjutnya. 
 
 ## Tujuan Produk
 Website GrowMate bertujuan untuk membantu UMKM dalam memahami trend pasar dan manajemen stok melalui analisis data dengan AI untuk mengoptimalkan penjualan. Dengan memanfaatkan data penjualan pribadi dan analisis tren pasar dari berbagai sosial media, sistem dapat memberikan rekomendasi yang tepat terkait manajemen stok produk dan strategi promosi. Dengan GrowMate maka pedagang UMKM dapat: 
@@ -75,6 +121,7 @@ Pengguna potensial website GrowMate adalah:
     - Mengoptimalkan penyimpanan dan distribusi barang  
 
 ## Use Case Diagram
+![Use Case Diagram](https://github.com/bulanmurela/GrowMate/blob/main/docs/images/UseCase_GrowMate.png)
 
 ## Functional Requirements
 
