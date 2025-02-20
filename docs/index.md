@@ -94,4 +94,4 @@ Pengguna potensial website GrowMate adalah:
     ![Lo-Fi Fitur](https://github.com/bulanmurela/GrowMate/blob/main/docs/images/FiturWireframe.png)
 
 ## Gantt-Chart Pengerjaan Proyek
-![Lo-Fi Gantt-Chart](https://github.com/bulanmurela/GrowMate/blob/main/docs/images/GanttChart.png)
+![Gantt-Chart](https://github.com/bulanmurela/GrowMate/blob/main/docs/images/GanttChart.png)
