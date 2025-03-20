@@ -5,25 +5,25 @@ const HeroSection = () => {
   return (
     <section className="flex flex-col md:flex-row items-center justify-between px-6 md:px-20 py-16 bg-white">
       {/* Bagian Kiri - Teks */}
-      <div className="text-center md:text-left max-w-lg ml-6">
-        <h3 className="text-lg text-gray-500 font-medium">Selamat Datang di</h3>
-        <h1 className="text-5xl font-extrabold text-blue-900 mt-2">GrowMate</h1>
-        <p className="text-gray-700 mt-4">
+      <div className="text-center md:text-center max-w-lg ml-10">
+        <h3 className="text-[#96ADD6] text-[20px] font-semibold">Selamat Datang di</h3>
+        <h1 className="text-7xl font-extrabold text-[#00408C] mt-4">GrowMate</h1>
+        <p className="text-black mt-6 font-nunito leading-6">
           Teman para pengusaha mikro, kecil, dan menengah (UMKM) untuk
           optimalkan penjualan dengan memahami tren pasar, analisis penjualan,
           dan manajemen stok.
         </p>
         {/* Tombol Daftar dan Masuk */}
-        <div className="mt-6 flex gap-4 justify-center md:justify-start">
+        <div className="mt-8 flex gap-16 md:justify-center h-[45px]">
           <Link
-            href="/daftar"
-            className="bg-red-500 hover:bg-red-600 text-white font-medium px-6 py-2 rounded-lg transition"
+            href="/Daftar"
+            className="flex items-center bg-[#F2D7D3] hover:bg-[#F9B8AF] text-[#E85234] font-bold px-8 py-4 rounded-[20px] transition"
           >
             Daftar
           </Link>
           <Link
-            href="/masuk"
-            className="bg-gray-200 hover:bg-gray-300 text-gray-800 font-medium px-6 py-2 rounded-lg transition"
+            href="/Masuk"
+            className="flex items-center bg-[#F2D7D3] hover:bg-[#F9B8AF] text-[#E85234] font-bold px-8 py-4 rounded-[20px] transition"
           >
             Masuk
           </Link>

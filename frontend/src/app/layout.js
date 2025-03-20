@@ -1,6 +1,13 @@
 import Navbar from "@/components/landing/Navbar"; // Sesuaikan path jika perlu
 import "./globals.css";
 import { Poppins } from "next/font/google";
+import { Nunito } from "next/font/google";
+
+const nunito = Nunito({
+  subsets: ["latin"],
+  weight: ["500", "700"], // Medium & Bold
+  style: ["normal", "italic"],
+});
 
 const poppins = Poppins({
   subsets: ["latin"],
@@ -17,6 +24,7 @@ export default function RootLayout({ children }) {
   return (
     <html lang="id">
       <body className={poppins.className}>
+        <Navbar />
         <main>{children}</main>
       </body>
     </html>
