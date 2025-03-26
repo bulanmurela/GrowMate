@@ -1,4 +1,5 @@
-import Navbar from "@/components/landing/Navbar"; // Sesuaikan path jika perlu
+import Navbar from "@/components/landing/Navbar";
+import Footer from "@/components/landing/Footer";
 import "./globals.css";
 import { Poppins } from "next/font/google";
 import { Nunito } from "next/font/google";
@@ -26,6 +27,7 @@ export default function RootLayout({ children }) {
       <body className={poppins.className}>
         <Navbar />
         <main>{children}</main>
+        <Footer />
       </body>
     </html>
   );
