@@ -3,7 +3,7 @@ import { useState } from "react";
 import Link from "next/link";
 import Image from "next/image";
 
-const Daftar = () => {
+const Masuk = () => {
   const [formData, setFormData] = useState({
     username: "",
     email: "",
@@ -16,7 +16,7 @@ const Daftar = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    console.log("Data yang dikirim:", formData);
+    console.log("Data login:", formData);
     // TODO: Kirim data ke backend dengan fetch atau axios
   };
 
@@ -36,10 +36,10 @@ const Daftar = () => {
 
         {/* Judul */}
         <h2 className="text-2xl font-bold text-[#00408C] text-center">
-          Daftarkan Akun Anda
+          Masuk ke Akun Anda
         </h2>
         <p className="text-[#7D7D7D] text-sm text-center mt-1">
-          Akses semua fitur dengan mudah dan menyimpan riwayat aktivitas ke akun Anda
+        Akses semua fitur dengan mudah dan menyimpan riwayat aktivitas ke akun Anda
         </p>
 
         {/* Form */}
@@ -88,15 +88,15 @@ const Daftar = () => {
             type="submit"
             className="mt-4 w-full bg-[#F2D7D3] hover:bg-[#F9B8AF] text-[#E85234] font-semibold py-2 rounded-[20px] transition"
           >
-            Daftar
+            Masuk
           </button>
         </form>
 
-        {/* Sudah punya akun */}
-        <p className="text-center text-sm mt-4 text-black">
-          Sudah punya akun?{" "}
-          <Link href="/Masuk" className="text-[#E85234] font-semibold">
-            Masuk
+        {/* Belum punya akun */}
+        <p className="text-center text-sm text-black mt-4">
+          Belum punya akun?{" "}
+          <Link href="/Daftar" className="text-[#E85234] font-semibold">
+            Daftar
           </Link>
         </p>
       </div>
@@ -104,4 +104,4 @@ const Daftar = () => {
   );
 };
 
-export default Daftar;
+export default Masuk;
