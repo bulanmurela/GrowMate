@@ -9,7 +9,7 @@ export default function Fitur() {
         {/* Kontainer Fitur */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-16 w-5xl mb-12">
           {/* Fitur 1: Tren Penjualan */}
-          <Link href="/tren-penjualan" className="group">
+          <Link href="/Fitur/Tren-Penjualan" className="group">
             <div className="bg-white shadow-lg rounded-[20px] p-8 border border-black flex flex-col items-center">
                 <img src="/assets/TrenFeature.jpg" alt="Tren Penjualan" className="w-24 h-24 mb-4 rounded-full" />
                 <h3 className="text-[20px] font-semibold text-black">Tren Penjualan</h3>
@@ -20,7 +20,7 @@ export default function Fitur() {
           </Link>
   
           {/* Fitur 2: Analisis Penjualan */}
-          <Link href="/analisis-penjualan" className="group">
+          <Link href="Fitur/Analisis-Penjualan" className="group">
             <div className="bg-white shadow-lg rounded-[20px] p-8 border border-black flex flex-col items-center">
                 <img src="/assets/SellingAnalysis.jpg" alt="Analisis Penjualan" className="w-24 h-24 mb-4 rounded-full" />
                 <h3 className="text-[20px] font-semibold text-black">Analisis Penjualan</h3>
@@ -31,7 +31,7 @@ export default function Fitur() {
           </Link>
   
           {/* Fitur 3: Manajemen Stok */}
-          <Link href="/manajemen-stok" className="group">
+          <Link href="/Fitur/Manajemen-Stok" className="group">
             <div className="bg-white shadow-lg rounded-[20px] p-8 border border-black flex flex-col items-center">
                 <img src="/assets/StokManage.jpg" alt="Manajemen Stok" className="w-24 h-24 mb-4 rounded-full" />
                 <h3 className="text-[20px] font-semibold text-black">Manajemen Stok</h3>
