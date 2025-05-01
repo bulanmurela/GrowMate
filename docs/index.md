@@ -126,19 +126,19 @@ Pengguna potensial website GrowMate adalah:
 ## Functional Requirements
 
 ## Entity Relationship Diagram
-![ERD](https://github.com/bulanmurela/GrowMate/blob/main/docs/images/GrowMateERD.png)
+![ERD](https://raw.githubusercontent.com/bulanmurela/GrowMate/main/docs/images/GrowMateERD.png)
 
 ## Low-Fidelity Wireframe
 1. Landing Page
-    ![Lo-Fi Landing Page](https://github.com/bulanmurela/GrowMate/blob/main/docs/images/LandingPageWireframe.png)
+    ![Lo-Fi Landing Page](https://raw.githubusercontent.com/bulanmurela/GrowMate/main/docs/images/LandingPageWireframe.png)
 2. Beranda
-    ![Lo-Fi Beranda](https://github.com/bulanmurela/GrowMate/blob/main/docs/images/BerandaWireframe.png)
+    ![Lo-Fi Beranda](https://raw.githubusercontent.com/bulanmurela/GrowMate/main/docs/images/BerandaWireframe.png)
 3. Signup
-    ![Lo-Fi Daftar](https://github.com/bulanmurela/GrowMate/blob/main/docs/images/DaftarWireframe.png)
+    ![Lo-Fi Daftar](https://raw.githubusercontent.com/bulanmurela/GrowMate/main/docs/images/DaftarWireframe.png)
 4. Login
-    ![Lo-Fi Login](https://github.com/bulanmurela/GrowMate/blob/main/docs/images/MasukWireframe.png)
+    ![Lo-Fi Login](https://raw.githubusercontent.com/bulanmurela/GrowMate/main/docs/images/MasukWireframe.png)
 5. Fitur
-    ![Lo-Fi Fitur](https://github.com/bulanmurela/GrowMate/blob/main/docs/images/FiturWireframe.png)
+    ![Lo-Fi Fitur](https://raw.githubusercontent.com/bulanmurela/GrowMate/main/docs/images/FiturWireframe.png)
 
 ## Gantt-Chart Pengerjaan Proyek
-![Gantt-Chart](https://github.com/bulanmurela/GrowMate/blob/main/docs/images/GanttChart.png)
+![Gantt-Chart](https://raw.githubusercontent.com/bulanmurela/GrowMate/main/docs/images/GanttChart.png)
