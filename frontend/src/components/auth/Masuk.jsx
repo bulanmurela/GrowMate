@@ -14,11 +14,33 @@ const Masuk = () => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
   };
 
-  const handleSubmit = async (e) => {
+  const handleLogin = async (e) => {
     e.preventDefault();
-    console.log("Data login:", formData);
-    // TODO: Kirim data ke backend dengan fetch atau axios
+    try {
+      const res = await fetch("http://localhost:5000/api/auth/login", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(formData),
+      });
+  
+      const data = await res.json();
+      
+      if (res.ok) {
+        // Simpan token dan data user
+        localStorage.setItem("token", data.token);
+        localStorage.setItem("user", JSON.stringify(data.user));
+        
+        // Paksa reload halaman untuk update navbar
+        window.location.href = "/Beranda";
+      } else {
+        alert(data.error || "Login gagal");
+      }
+    } catch (err) {
+      console.error("Login error:", err);
+      alert("Terjadi kesalahan jaringan");
+    }
   };
+  
 
   return (
     <div className="flex flex-col items-center justify-center min-h-screen bg-white px-4">
@@ -43,7 +65,7 @@ const Masuk = () => {
         </p>
 
         {/* Form */}
-        <form onSubmit={handleSubmit} className="mt-6">
+        <form onSubmit={handleLogin} className="mt-6">
           {/* Username */}
           <div className="mb-4">
             <label className="block text-sm font-semibold text-black">Username</label>

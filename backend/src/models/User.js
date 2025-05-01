@@ -5,7 +5,8 @@ const User = sequelize.define('User', {
     username: {
         type: DataTypes.STRING,
         allowNull: false,
-        unique: true
+        unique: true,
+        primaryKey: true
     },
     email: {
         type: DataTypes.STRING,
@@ -19,12 +20,8 @@ const User = sequelize.define('User', {
         type: DataTypes.STRING,
         allowNull: false
     },
-    role: {
-        type: DataTypes.STRING,
-        allowNull: true,
-        defaultValue: 'user'
-    },
-    phone_number: {
+    
+    phone: {
         type: DataTypes.STRING,
         allowNull: true
     },
@@ -39,7 +36,7 @@ const User = sequelize.define('User', {
     }
 }, {
     timestamps: false,
-    tableName: 'users'
+    tableName: 'pengguna'
 });
 
 // Middleware Sequelize untuk mencegah update username

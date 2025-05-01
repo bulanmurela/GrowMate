@@ -47,7 +47,7 @@ const Product = sequelize.define('Product', {
     }
 }, {
     timestamps: true,
-    tableName: 'products'
+    tableName: 'product'
 });
 
 // Relasi ke tabel lain
