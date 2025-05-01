@@ -16,9 +16,30 @@ const Daftar = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    console.log("Data yang dikirim:", formData);
-    // TODO: Kirim data ke backend dengan fetch atau axios
-  };
+    try {
+      const res = await fetch("http://localhost:5000/api/auth/register", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(formData),
+      });
+  
+      if (!res.ok) {
+        const errorText = await res.text();
+        console.error("Server response error:", errorText);
+        alert("Terjadi kesalahan: " + errorText);
+        return;
+      }
+  
+      const data = await res.json();
+      console.log("Response backend:", data);
+  
+      alert(data.message || "Pendaftaran berhasil!");
+      window.location.href = "/Masuk";
+    } catch (err) {
+      console.error("Gagal daftar:", err);
+      alert("Terjadi kesalahan jaringan.");
+    }
+  };  
 
   return (
     <div className="flex flex-col items-center justify-center min-h-screen bg-white px-4">

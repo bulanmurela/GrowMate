@@ -7,25 +7,29 @@ import { usePathname } from "next/navigation";
 import ProfilePopup from "@/components/menu/PopUpProfile";
 
 export default function Navbar() {
-  // State untuk cek apakah user sudah login
-  const [isLoggedIn, setIsLoggedIn] = useState(true);
-  const [showProfile, setShowProfile] = useState(false);
-  const pathname = usePathname(); // Ambil path sekarang
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
+  const [userData, setUserData] = useState(null);
+  const [showProfilePopup, setShowProfilePopup] = useState(false);
+  const pathname = usePathname();
 
-  // // Cek status login dari localStorage saat pertama kali komponen dimuat
-  // useEffect(() => {
-  //   const token = localStorage.getItem("token"); // Contoh cek token login
-  //   if (token) {
-  //     setIsLoggedIn(true);
-  //   }
-  // }, []);
+  // Cek status login saat komponen dimuat dan setiap route berubah
+  useEffect(() => {
+    const user = JSON.parse(localStorage.getItem("user"));
+    if (user) {
+      setIsLoggedIn(true);
+      setUserData(user);
+    } else {
+      setIsLoggedIn(false);
+      setUserData(null);
+    }
+  }, [pathname]);
 
   const handleProfileClick = () => {
-    setShowProfile(true);
+    setShowProfilePopup(true);
   };
 
-  const closeProfile = () => {
-    setShowProfile(false);
+  const closeProfilePopup = () => {
+    setShowProfilePopup(false);
   };
 
   return (
@@ -75,38 +79,50 @@ export default function Navbar() {
         {/* Tombol Daftar & Masuk (di kanan) */}
         {!isLoggedIn ? (
           <div className="flex gap-2 md:justify-center h-[35px]">
-          <Link
-            href="/Daftar"
-            className="flex items-center bg-[#F2D7D3] hover:bg-[#F9B8AF] text-[#E85234] text-sm font-semibold px-8 py-4 rounded-[20px] transition"
-          >
-            Daftar
-          </Link>
-          <Link
-            href="/Masuk"
-            className="flex items-center bg-[#F2D7D3] hover:bg-[#F9B8AF] text-[#E85234] text-sm font-semibold px-8 py-4 rounded-[20px] transition"
-          >
-            Masuk
-          </Link>
-        </div>
+            <Link
+              href="/Daftar"
+              className="flex items-center bg-[#F2D7D3] hover:bg-[#F9B8AF] text-[#E85234] text-sm font-semibold px-8 py-4 rounded-[20px] transition"
+            >
+              Daftar
+            </Link>
+            <Link
+              href="/Masuk"
+              className="flex items-center bg-[#F2D7D3] hover:bg-[#F9B8AF] text-[#E85234] text-sm font-semibold px-8 py-4 rounded-[20px] transition"
+            >
+              Masuk
+            </Link>
+          </div>
         ) : (
           <div
             className="flex items-center space-x-2 cursor-pointer"
             onClick={handleProfileClick}
           >
             <button className="bg-[#F2D7D3] hover:bg-[#F9B8AF] text-[#E85234] font-normal text-[14px] px-8 py-2 rounded-[20px] transition">
-              johndoe
+              {userData?.username || 'Profile'} {/* Tampilkan username */}
             </button>
-            <img
-              src="/assets/ikonProfil.png"
-              alt="Profile Icon"
-              className="w-9 h-9 rounded-full"
-            />
+            {userData?.profilePicture ? (
+              <img
+                src={userData.profilePicture}
+                alt="Profile"
+                className="w-9 h-9 rounded-full object-cover"
+              />
+            ) : (
+              <img
+                src="/assets/ikonProfil.png"
+                alt="Profile Icon"
+                className="w-9 h-9 rounded-full"
+              />
+            )}
           </div>
-
         )}
       </nav>
 
-      {showProfile && <ProfilePopup onClose={closeProfile} />}
+      {showProfilePopup && (
+        <ProfilePopup 
+          onClose={closeProfilePopup}
+          userData={userData}
+        />
+      )}
     </>
   );
 }
