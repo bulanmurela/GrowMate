@@ -28,7 +28,10 @@ const Masuk = () => {
       if (res.ok) {
         // Simpan token dan data user
         localStorage.setItem("token", data.token);
-        localStorage.setItem("user", JSON.stringify(data.user));
+        localStorage.setItem("user", JSON.stringify({
+          username: data.username,
+          email: data.email
+        }));
         
         // Paksa reload halaman untuk update navbar
         window.location.href = "/Beranda";

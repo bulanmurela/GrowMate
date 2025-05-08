@@ -14,13 +14,39 @@ export default function Navbar() {
 
   // Cek status login saat komponen dimuat dan setiap route berubah
   useEffect(() => {
-    const user = JSON.parse(localStorage.getItem("user"));
-    if (user) {
+    try {
+      const userData = localStorage.getItem("user");
+      
+      // Jika kosong atau null
+      if (!userData) {
+        setIsLoggedIn(false);
+        setUserData(null);
+        return;
+      }
+  
+      // Jika berupa string biasa (bukan JSON)
+      if (!userData.startsWith('{') && !userData.startsWith('[')) {
+        setIsLoggedIn(true);
+        setUserData({ username: userData }); // Wrap dalam object
+        return;
+      }
+  
+      // Jika benar-benar JSON
+      const parsedData = JSON.parse(userData);
       setIsLoggedIn(true);
-      setUserData(user);
-    } else {
+      setUserData(parsedData);
+  
+    } catch (error) {
+      console.error("ERROR DETAILS:", {
+        error,
+        storedValue: localStorage.getItem("user"),
+        errorStack: error.stack
+      });
+      
+      // Reset semua
       setIsLoggedIn(false);
       setUserData(null);
+      localStorage.removeItem("user");
     }
   }, [pathname]);
 
