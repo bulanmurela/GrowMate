@@ -1,27 +1,87 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
+import { useRouter } from "next/navigation";
 
 export default function PopUpProfil({ onClose }) {
+    const router = useRouter();
     const [isEditing, setIsEditing] = useState(false);
     const [user, setUser] = useState({
-      username: "growmateteam",
-      email: "gmteam@example.com",
-      phone: "081234567890",
-      address: "Jl. Grafika, UGM",
+      username: "",
+      email: "",
+      phone: "",
+      address: "",
     });
+
+    useEffect(() => {
+      const userData = localStorage.getItem("user");
+      if (userData) {
+        try {
+          const parsed = JSON.parse(userData);
+          setUser((prev) => ({
+            ...prev,
+            username: parsed.username || "",
+            email: parsed.email || "",
+            // phone dan address bisa kosong dulu jika belum ada di DB
+            phone: parsed.phone || "",
+            address: parsed.address || "",
+          }));
+        } catch (e) {
+          console.error("Gagal parse user:", e);
+        }
+      }
+    }, []);
 
     const handleChange = (e) => {
         const { name, value } = e.target;
         setUser((prev) => ({ ...prev, [name]: value }));
       };
     
-      const handleSave = () => {
-        // Simulasi update ke database
-        console.log("Data yang disimpan:", user);
-        // TODO: Panggil fungsi update ke database di sini (misal pakai fetch/axios)
-    
-        setIsEditing(false);
+      const handleSave = async () => {
+        try {
+          const token = localStorage.getItem("token");
+          if (!token) {
+            throw new Error("Token tidak ditemukan, silakan login kembali");
+          }
+      
+          const response = await fetch("http://localhost:5000/api/users/update", {
+            method: "PUT",
+            headers: {
+              "Content-Type": "application/json",
+              "Authorization": `Bearer ${token}`
+            },
+            body: JSON.stringify({
+              username: user.username,
+              email: user.email,
+              phone: user.phone || "", // handle null value
+              address: user.address || ""
+            })
+          });
+      
+          const data = await response.json();
+      
+          if (!response.ok) {
+            throw new Error(data.message || "Update gagal tanpa pesan error");
+          }
+      
+          // Update local storage dengan data baru
+          const updatedUser = { ...user };
+          localStorage.setItem("user", JSON.stringify(updatedUser));
+          
+          setIsEditing(false);
+          alert("Profil berhasil diperbarui!");
+      
+        } catch (error) {
+          console.error("Detail error:", error);
+          alert(`Gagal menyimpan: ${error.message}`);
+        }
+      };
+
+      const handleLogout = () => {
+        localStorage.removeItem("token");
+        localStorage.removeItem("user");
+        router.push("/");
+        onClose();
       };
 
   return (
@@ -74,9 +134,9 @@ export default function PopUpProfil({ onClose }) {
               </button>
               <button
                 className="bg-[#F2D7D3] text-[#E85234] px-8 py-0 rounded-3xl h-9 font-semibold"
-                onClick={onClose}
+                onClick={handleLogout}
               >
-                Keluar
+                Logout
               </button>
             </div>
           </div>
