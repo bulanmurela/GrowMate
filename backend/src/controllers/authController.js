@@ -1,6 +1,7 @@
 const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
 const User = require("../models/User");
+const { Op } = require('sequelize');
 
 // Register
 exports.register = async (req, res) => {
@@ -9,6 +10,23 @@ exports.register = async (req, res) => {
 
     if (!username || !email || !password) {
       return res.status(400).json({ message: 'Field tidak boleh kosong' });
+    }
+
+    const existingUser = await User.findOne({
+      where: {
+        [Op.or]: [
+          { username },
+          { email }
+        ]
+      }
+    });
+
+    if (existingUser) {
+      return res.status(400).json({ 
+        message: existingUser.username === username 
+          ? 'Username sudah digunakan' 
+          : 'Email sudah terdaftar' 
+      });
     }
 
     const salt = await bcrypt.genSalt(10);
@@ -20,7 +38,9 @@ exports.register = async (req, res) => {
       password: hashedPassword
     });
 
-    const token = jwt.sign({ userId: user.id }, process.env.JWT_SECRET, { expiresIn: '1h' });
+    const token = jwt.sign({ username: user.username }, process.env.JWT_SECRET, { 
+      expiresIn: '1h' 
+    });
 
     return res.status(201).json({ message: 'User berhasil dibuat', token });
   } catch (error) {
@@ -51,7 +71,9 @@ exports.login = async (req, res) => {
           return res.status(401).json({ error: "Password salah" });
       }
 
-      const token = jwt.sign({ userId: user.id }, process.env.JWT_SECRET, { expiresIn: '1h' });
+      const token = jwt.sign({ username: user.username }, process.env.JWT_SECRET, { 
+        expiresIn: '1h' 
+      });
 
       // Kirim juga informasi username dan profilePicture (jika ada)
       res.json({
@@ -66,6 +88,3 @@ exports.login = async (req, res) => {
       res.status(500).json({ error: err.message });
   }
 };
-
-// Pastikan Anda mengimpor Operator dari Sequelize jika Anda menggunakan Sequelize
-const { Op } = require('sequelize');
