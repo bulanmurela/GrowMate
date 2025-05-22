@@ -43,8 +43,16 @@ export default function PopUpProfil({ onClose }) {
           if (!token) {
             throw new Error("Token tidak ditemukan, silakan login kembali");
           }
-      
-          const response = await fetch("http://localhost:5000/api/users/update", {
+
+          // Debug: Log the data being sent
+          console.log("Data being sent:", {
+            username: user.username,
+            email: user.email,
+            phone: user.phone,
+            address: user.address
+          });
+
+          const response = await fetch("/api/users/update", {
             method: "PUT",
             headers: {
               "Content-Type": "application/json",
@@ -57,7 +65,24 @@ export default function PopUpProfil({ onClose }) {
               address: user.address || ""
             })
           });
-      
+
+          // Debug: Log the raw response
+          console.log("Raw response:", response);
+
+          // First check if response is OK before parsing JSON
+          if (!response.ok) {
+            const errorData = await response.text(); // Get response as text first
+            try {
+              // Try to parse as JSON if possible
+              const jsonError = JSON.parse(errorData);
+              throw new Error(jsonError.message || "Update gagal tanpa pesan error");
+            } catch {
+              // If not JSON, use the raw text
+              throw new Error(errorData || "Update gagal tanpa pesan error");
+            }
+          }
+
+
           const data = await response.json();
       
           if (!response.ok) {
@@ -65,8 +90,8 @@ export default function PopUpProfil({ onClose }) {
           }
       
           // Update local storage dengan data baru
-          const updatedUser = { ...user };
-          localStorage.setItem("user", JSON.stringify(updatedUser));
+          localStorage.setItem("user", JSON.stringify(data.user));
+          setUser(data.user);
           
           setIsEditing(false);
           alert("Profil berhasil diperbarui!");
