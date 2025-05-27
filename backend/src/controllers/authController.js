@@ -75,13 +75,13 @@ exports.login = async (req, res) => {
         expiresIn: '1h' 
       });
 
-      // Kirim juga informasi username dan profilePicture (jika ada)
       res.json({
           message: "Login berhasil",
           token,
-          username: user.username, // Pastikan kolom ini ada di model User
+          username: user.username,
           email : user.email,
-          profilePicture: user.profilePicture || null // Sesuaikan dengan nama kolom Anda
+          phone: user.phone,
+          address: user.address
       });
 
   } catch (err) {

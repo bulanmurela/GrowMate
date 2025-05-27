@@ -1,12 +1,11 @@
-// routes/productRoutes.js
 const express = require('express');
-const { createProduct, getAllProducts } = require('../controllers/productController');
-const authMiddleware = require('../middleware/authMiddleware');  // Import the auth middleware
-
 const router = express.Router();
+const { createProduct, getAllProducts, updateProduct, deleteProduct } = require('../controllers/productController');
+const authMiddleware = require('../middleware/authMiddleware');
 
-// Protect the create product route with authentication
-router.post('/', authMiddleware, createProduct);  // Only authenticated users can create products
-router.get('/', getAllProducts);  // Public route, no authentication needed
+router.post('/create', authMiddleware, createProduct);
+router.get('/:username', authMiddleware, getAllProducts);
+router.delete("/:id", authMiddleware, deleteProduct);
+router.put("/:id", authMiddleware, updateProduct);
 
 module.exports = router;

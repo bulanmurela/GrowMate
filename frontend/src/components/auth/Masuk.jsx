@@ -30,9 +30,11 @@ const Masuk = () => {
         localStorage.setItem("token", data.token);
         localStorage.setItem("user", JSON.stringify({
           username: data.username,
-          email: data.email
+          email: data.email,
+          phone: data.phone,
+          address: data.address
         }));
-        
+
         // Paksa reload halaman untuk update navbar
         window.location.href = "/Beranda";
       } else {

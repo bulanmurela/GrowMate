@@ -22,7 +22,6 @@ export default function PopUpProfil({ onClose }) {
             ...prev,
             username: parsed.username || "",
             email: parsed.email || "",
-            // phone dan address bisa kosong dulu jika belum ada di DB
             phone: parsed.phone || "",
             address: parsed.address || "",
           }));
@@ -89,9 +88,13 @@ export default function PopUpProfil({ onClose }) {
             throw new Error(data.message || "Update gagal tanpa pesan error");
           }
       
-          // Update local storage dengan data baru
-          localStorage.setItem("user", JSON.stringify(data.user));
-          setUser(data.user);
+          localStorage.setItem("user", JSON.stringify({
+              username: response.data.username,
+              email: response.data.email,
+              phone: response.data.phone,
+              address: response.data.address,
+          }));
+
           
           setIsEditing(false);
           alert("Profil berhasil diperbarui!");
