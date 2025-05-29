@@ -31,7 +31,8 @@ export default function ManajemenStok() {
       console.log('Fetching products for username:', username);
       console.log('Using token:', token.substring(0, 20) + '...');
 
-      const response = await fetch(`http://localhost:5000/api/products/${username}`, {
+      const API_URL = process.env.REACT_APP_API_URL;
+      const response = await fetch(`${API_URL}/api/products/${username}`, {
         method: 'GET',
         headers: {
           'Authorization': `Bearer ${token}`,
@@ -214,7 +215,8 @@ export default function ManajemenStok() {
 
       console.log('Sending product data:', produkData);
 
-      const response = await fetch('http://localhost:5000/api/products/create', {
+      const API_URL = process.env.REACT_APP_API_URL;
+      const response = await fetch(`${API_URL}/api/products/create`, {
         method: "POST",
         headers: {
           'Authorization': `Bearer ${token}`,
@@ -273,8 +275,8 @@ export default function ManajemenStok() {
 
       const { token } = auth;
       
-      // Fix: Use correct endpoint for deleting specific product
-      const response = await fetch(`http://localhost:5000/api/products/${id}`, {
+      const API_URL = process.env.REACT_APP_API_URL;
+      const response = await fetch(`${API_URL}/api/products/${id}`, {
         method: 'DELETE',
         headers: {
           'Authorization': `Bearer ${token}`,
@@ -374,7 +376,8 @@ export default function ManajemenStok() {
     console.log('Sending update data:', updateData);
     console.log('Update URL:', `http://localhost:5000/api/products/${editProdukId}`);
 
-    const response = await fetch(`http://localhost:5000/api/products/${editProdukId}`, {
+      const API_URL = process.env.REACT_APP_API_URL;
+      const response = await fetch(`${API_URL}/api/products/${edutProdukId}`, {
       method: 'PUT',
       headers: {
         'Authorization': `Bearer ${token}`,
