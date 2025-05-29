@@ -7,7 +7,7 @@ const ProductRoutes = require("./routes/ProductRoutes");
 
 // Middleware
 app.use(cors({
-  origin: 'https://grow-mate-57isn0wad-bulanmurelas-projects.vercel.app',
+  origin: 'https://grow-mate-bulanmurelas-projects.vercel.app/',
   methods: ['GET', 'POST', 'PUT', 'DELETE'],
   credentials: true // Jika menggunakan auth seperti JWT
 }));
