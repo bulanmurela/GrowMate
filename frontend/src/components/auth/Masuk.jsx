@@ -17,8 +17,7 @@ const Masuk = () => {
   const handleLogin = async (e) => {
     e.preventDefault();
     try {
-      const API_URL = process.env.REACT_APP_API_URL;
-      const res = await fetch(`${API_URL}/api/auth/login`, {
+      const res = await fetch('https://growmate-app.up.railway.app/api/auth/login', {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(formData),
