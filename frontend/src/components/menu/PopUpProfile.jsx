@@ -6,29 +6,35 @@ import { useRouter } from "next/navigation";
 export default function PopUpProfil({ onClose }) {
     const router = useRouter();
     const [isEditing, setIsEditing] = useState(false);
-    const [user, setUser] = useState({
+    const [user, setUser] = useState(
+    {
       username: "",
       email: "",
       phone: "",
       address: "",
-    });
+    }
+    );
 
     useEffect(() => {
+      // const userData = localStorage.getItem("user");
+      // if (userData) {
+      //   try {
+      //     const parsed = JSON.parse(userData);
+      //     setUser((prev) => ({
+      //       ...prev,
+      //       username: parsed.username || "",
+      //       email: parsed.email || "",
+      //       phone: parsed.phone || "",
+      //       address: parsed.address || "",
+      //     }));
+      //   } catch (e) {
+      //     console.error("Gagal parse user:", e);
+      //   }
+      // }
       const userData = localStorage.getItem("user");
       if (userData) {
-        try {
-          const parsed = JSON.parse(userData);
-          setUser((prev) => ({
-            ...prev,
-            username: parsed.username || "",
-            email: parsed.email || "",
-            phone: parsed.phone || "",
-            address: parsed.address || "",
-          }));
-        } catch (e) {
-          console.error("Gagal parse user:", e);
-        }
-      }
+        setUser(JSON.parse(userData));
+  }
     }, []);
 
     const handleChange = (e) => {
@@ -89,10 +95,10 @@ export default function PopUpProfil({ onClose }) {
           }
       
           localStorage.setItem("user", JSON.stringify({
-              username: response.data.username,
-              email: response.data.email,
-              phone: response.data.phone,
-              address: response.data.address,
+              username: data.username,
+              email: data.email,
+              phone: data.phone,
+              address: data.address,
           }));
 
           
