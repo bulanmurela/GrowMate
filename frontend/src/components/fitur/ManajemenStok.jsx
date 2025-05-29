@@ -2,9 +2,16 @@
 
 import { useState, useEffect } from "react";
 
+// It's good practice to define API_URL outside the component or in a config file
+// For Next.js, you'd use process.env.NEXT_PUBLIC_API_URL
+// For Create React App, it's process.env.REACT_APP_API_URL
+// Let's assume a general approach for now, but you should configure this properly for your setup.
+const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || "https://growmate-app.up.railway.app"; // Fallback if env var isn't set
+
 export default function ManajemenStok() {
   const [produkList, setProdukList] = useState([]);
   const [loading, setLoading] = useState(false);
+  const [loadingHariBaru, setLoadingHariBaru] = useState(false);
   const [error, setError] = useState(null);
   const [formData, setFormData] = useState({
     name: "",
@@ -12,16 +19,49 @@ export default function ManajemenStok() {
     unit_price: "",
     stock: "",
   });
+  const [manualDate, setManualDate] = useState('');
+
+  const validateToken = () => {
+    const token = localStorage.getItem('token');
+    const userItem = localStorage.getItem('user');
+    
+    if (!token || !userItem) {
+      // console.error("Token atau user tidak ditemukan di localStorage");
+      return false;
+    }
+    try {
+      const parsedUser = JSON.parse(userItem);
+      if (!parsedUser || !parsedUser.username) {
+        // console.error("Username tidak ditemukan dalam user data");
+        return false;
+      }
+      const tokenParts = token.split('.');
+      if (tokenParts.length === 3) {
+        const payload = JSON.parse(atob(tokenParts[1]));
+        const currentTime = Date.now() / 1000;
+        if (payload.exp && payload.exp < currentTime) {
+          // console.error("Token sudah expired");
+          localStorage.removeItem('token');
+          localStorage.removeItem('user');
+          return false;
+        }
+      }
+      return { token, user: parsedUser };
+    } catch (e) {
+      // console.error("Error parsing user data:", e);
+      return false;
+    }
+  };
 
   const fetchProduk = async () => {
     try {
       setLoading(true);
       setError(null);
       
-      // Validasi token
       const auth = validateToken();
       if (!auth) {
         setError("Token tidak valid. Silakan login ulang.");
+        setLoading(false); 
         return;
       }
       
@@ -31,7 +71,8 @@ export default function ManajemenStok() {
       console.log('Fetching products for username:', username);
       console.log('Using token:', token.substring(0, 20) + '...');
 
-      const response = await fetch(`https://growmate-app.up.railway.app/api/products/${username}`, {
+      // Using the main branch's logic for fetching products, but with API_BASE_URL
+      const response = await fetch(`${API_BASE_URL}/api/products/${username}`, {
         method: 'GET',
         headers: {
           'Authorization': `Bearer ${token}`,
@@ -39,59 +80,45 @@ export default function ManajemenStok() {
         },
       });
 
-      console.log('Fetch response status:', response.status);
-      console.log('Fetch response headers:', [...response.headers.entries()]);
-
       if (!response.ok) {
         const errorText = await response.text();
-        console.error('Fetch error response:', errorText);
         
-        // Handle specific error codes
         if (response.status === 401) {
           setError("Session expired atau token tidak valid. Silakan login ulang.");
           localStorage.removeItem('token');
           localStorage.removeItem('user');
-          return;
         } else if (response.status === 404) {
           setError("Endpoint tidak ditemukan. Periksa URL API.");
-          return;
         } else if (response.status === 500) {
-          // Parse error message from server
           try {
             const errorObj = JSON.parse(errorText);
             setError(`Server error: ${errorObj.error || errorObj.message || 'Internal server error'}`);
           } catch (parseErr) {
             setError(`Server error (500): ${errorText}`);
           }
-          return;
+        } else {
+          throw new Error(`HTTP ${response.status}: ${errorText}`);
         }
-        
-        throw new Error(`HTTP ${response.status}: ${errorText}`);
+        setLoading(false); 
+        return;
       }
 
-      // Check content type
       const contentType = response.headers.get('content-type');
       if (!contentType || !contentType.includes('application/json')) {
         const text = await response.text();
-        console.error('Response bukan JSON:', text);
         setError('Server tidak mengembalikan data JSON yang valid');
+        setLoading(false); 
         return;
       }
 
       const text = await response.text();
-      console.log('Fetch raw response:', text);
-
-      // Handle empty response
       if (!text.trim()) {
-        console.warn("Response kosong dari server");
         setProdukList([]);
+        setLoading(false); 
         return;
       }
 
       const data = JSON.parse(text);
-      console.log("Data produk dari server:", data);
-
-      // Handle different response formats
       let products = [];
       if (Array.isArray(data)) {
         products = data;
@@ -102,19 +129,15 @@ export default function ManajemenStok() {
       } else if (data.result && Array.isArray(data.result)) {
         products = data.result;
       } else {
-        console.warn("Format data tidak dikenali:", data);
         setError("Format data dari server tidak sesuai yang diharapkan");
+        setLoading(false); 
         return;
       }
-
-      console.log("Final products array:", products);
       setProdukList(products);
-
     } catch (error) {
       console.error("Error fetching products:", error);
-      
       if (error.name === 'TypeError' && error.message.includes('fetch')) {
-        setError("Tidak dapat terhubung ke server. Pastikan server berjalan di http://localhost:5000");
+        setError("Tidak dapat terhubung ke server. Pastikan server berjalan");
       } else {
         setError(`Error: ${error.message}`);
       }
@@ -134,48 +157,11 @@ export default function ManajemenStok() {
     }));
   };
 
-  // Helper function untuk validasi token
-  const validateToken = () => {
-    const token = localStorage.getItem('token');
-    const user = localStorage.getItem('user');
-    
-    if (!token || !user) {
-      console.error("Token atau user tidak ditemukan di localStorage");
-      return false;
-    }
-    
-    try {
-      const parsedUser = JSON.parse(user);
-      if (!parsedUser.username) {
-        console.error("Username tidak ditemukan dalam user data");
-        return false;
-      }
-      
-      // Check token expiration
-      const tokenParts = token.split('.');
-      if (tokenParts.length === 3) {
-        const payload = JSON.parse(atob(tokenParts[1]));
-        const currentTime = Date.now() / 1000;
-        
-        if (payload.exp && payload.exp < currentTime) {
-          console.error("Token sudah expired");
-          return false;
-        }
-      }
-      
-      return { token, user: parsedUser };
-    } catch (e) {
-      console.error("Error parsing user data:", e);
-      return false;
-    }
-  };
-
   const handleTambahProduk = async () => {
     try {
       setLoading(true);
       setError(null);
       
-      // Validasi token
       const auth = validateToken();
       if (!auth) {
         setError("Session expired. Silakan login ulang.");
@@ -184,13 +170,11 @@ export default function ManajemenStok() {
       
       const { token, user } = auth;
 
-      // Validasi input
       if (!formData.name.trim() || !formData.category.trim() || !formData.unit_price || !formData.stock) {
         alert("Semua field harus diisi!");
         return;
       }
 
-      // Validasi angka
       const unitPrice = parseInt(formData.unit_price);
       const stock = parseInt(formData.stock);
       
@@ -214,7 +198,8 @@ export default function ManajemenStok() {
 
       console.log('Sending product data:', produkData);
 
-      const response = await fetch('https://growmate-app.up.railway.app/api/products/create', {
+      // Using the main branch's logic for adding products, but with API_BASE_URL
+      const response = await fetch(`${API_BASE_URL}/api/products/create`, {
         method: "POST",
         headers: {
           'Authorization': `Bearer ${token}`,
@@ -224,27 +209,20 @@ export default function ManajemenStok() {
       });
 
       console.log('Create response status:', response.status);
-
       const responseText = await response.text();
       console.log('Create raw response:', responseText);
 
       if (!response.ok) {
-        console.error('Create error response:', responseText);
-        
         if (response.status === 401) {
           setError("Session expired atau token tidak valid. Silakan login ulang.");
           localStorage.removeItem('token');
           localStorage.removeItem('user');
           return;
         }
-        
         throw new Error(`Gagal menambahkan produk: ${response.status} - ${responseText}`);
       }
 
-      // Reset form
       setFormData({ name: "", category: "", unit_price: "", stock: "" });
-      
-      // Refresh data produk
       await fetchProduk();
       alert("Produk berhasil ditambahkan!");
       
@@ -260,20 +238,18 @@ export default function ManajemenStok() {
     if (!confirm("Yakin ingin menghapus produk ini?")) {
       return;
     }
-    
     try {
       setLoading(true);
       setError(null);
-
       const auth = validateToken();
       if (!auth) {
         setError("Session expired. Silakan login ulang.");
         return;
       }
-
       const { token } = auth;
       
-      const response = await fetch(`https://growmate-app.up.railway.app/api/products/${id}`, {
+      // Using the main branch's logic for deleting products, but with API_BASE_URL
+      const response = await fetch(`${API_BASE_URL}/api/products/${id}`, {
         method: 'DELETE',
         headers: {
           'Authorization': `Bearer ${token}`,
@@ -285,8 +261,6 @@ export default function ManajemenStok() {
         const text = await response.text();
         throw new Error(`Gagal menghapus produk: ${response.status} - ${text}`);
       }
-
-      // Update state without fetching again
       setProdukList(produkList.filter((produk) => produk.id !== id));
       alert("Produk berhasil dihapus!");
     } catch (err) {
@@ -299,6 +273,7 @@ export default function ManajemenStok() {
   
   const [editProdukId, setEditProdukId] = useState(null);
   const [editFormData, setEditFormData] = useState({
+    id: "",
     name: "",
     category: "",
     unit_price: "",
@@ -307,162 +282,175 @@ export default function ManajemenStok() {
 
   const handleEdit = (produk) => {
     setEditProdukId(produk.id);
-    setEditFormData({ ...produk });
+    setEditFormData({ ...produk }); 
   };
   
   const handleSimpan = async () => {
-  try {
-    setLoading(true);
-    setError(null);
-    
-    console.log('=== HANDLE SIMPAN DEBUG ===');
-    console.log('Edit Product ID:', editProdukId);
-    console.log('Edit Form Data:', editFormData);
-    
-    const auth = validateToken();
-    if (!auth) {
-      setError("Session expired. Silakan login ulang.");
-      return;
-    }
-
-    const { token } = auth;
-
-    // Validasi data sebelum dikirim
-    if (!editFormData.name || editFormData.name.trim() === '') {
-      alert('Nama produk tidak boleh kosong!');
-      return;
-    }
-
-    if (!editFormData.category || editFormData.category.trim() === '') {
-      alert('Kategori tidak boleh kosong!');
-      return;
-    }
-
-    if (!editFormData.unit_price || editFormData.unit_price === '') {
-      alert('Harga tidak boleh kosong!');
-      return;
-    }
-
-    if (editFormData.stock === undefined || editFormData.stock === null || editFormData.stock === '') {
-      alert('Stock tidak boleh kosong!');
-      return;
-    }
-
-    // Validasi tipe data
-    const unitPriceNum = parseFloat(editFormData.unit_price);
-    const stockNum = parseInt(editFormData.stock);
-
-    if (isNaN(unitPriceNum) || unitPriceNum < 0) {
-      alert('Harga harus berupa angka yang valid dan tidak boleh negatif!');
-      return;
-    }
-
-    if (isNaN(stockNum) || stockNum < 0) {
-      alert('Stock harus berupa angka yang valid dan tidak boleh negatif!');
-      return;
-    }
-
-    // Prepare data dengan validasi yang ketat
-    const updateData = {
-      name: editFormData.name.trim(),
-      category: editFormData.category.trim(),
-      unit_price: unitPriceNum,
-      stock: stockNum
-    };
-
-      const response = await fetch(`https://growmate-app.up.railway.app/api/products/${edutProdukId}`, {
-      method: 'PUT',
-      headers: {
-        'Authorization': `Bearer ${token}`,
-        'Content-Type': 'application/json'
-      },
-      body: JSON.stringify(updateData)
-    });
-
-    console.log('Update response status:', response.status);
-    console.log('Update response headers:', [...response.headers.entries()]);
-
-    // Handle response
-    const responseText = await response.text();
-    console.log('Update raw response:', responseText);
-
-    if (!response.ok) {
-      console.error('Update error response:', responseText);
-      
-      // Parse error jika memungkinkan
-      try {
-        const errorObj = JSON.parse(responseText);
-        throw new Error(`Gagal update produk: ${response.status} - ${JSON.stringify(errorObj)}`);
-      } catch (parseErr) {
-        throw new Error(`Gagal update produk: ${response.status} - ${responseText}`);
-      }
-    }
-
-    // Parse successful response
-    let result;
     try {
-      result = JSON.parse(responseText);
-      console.log('Parsed update result:', result);
-    } catch (parseErr) {
-      console.error('Error parsing success response:', parseErr);
-      throw new Error('Response dari server tidak valid');
+      setLoading(true);
+      setError(null);
+      const auth = validateToken();
+      if (!auth) {
+        setError("Session expired. Silakan login ulang.");
+        return;
+      }
+      const { token } = auth;
+      if (!editFormData.name || editFormData.name.trim() === '') {
+        alert('Nama produk tidak boleh kosong!'); return;
+      }
+      if (!editFormData.category || editFormData.category.trim() === '') {
+        alert('Kategori tidak boleh kosong!'); return;
+      }
+      if (editFormData.unit_price === undefined || editFormData.unit_price === null || editFormData.unit_price === '') {
+        alert('Harga tidak boleh kosong!'); return;
+      }
+      if (editFormData.stock === undefined || editFormData.stock === null || editFormData.stock === '') {
+        alert('Stock tidak boleh kosong!'); return;
+      }
+      const unitPriceNum = parseFloat(editFormData.unit_price);
+      const stockNum = parseInt(editFormData.stock);
+      if (isNaN(unitPriceNum) || unitPriceNum < 0) {
+        alert('Harga harus berupa angka yang valid dan tidak boleh negatif!'); return;
+      }
+      if (isNaN(stockNum) || stockNum < 0) {
+        alert('Stock harus berupa angka yang valid dan tidak boleh negatif!'); return;
+      }
+      const updateData = {
+        name: editFormData.name.trim(),
+        category: editFormData.category.trim(),
+        unit_price: unitPriceNum,
+        stock: stockNum
+      };
+      
+      // Using the main branch's approach for endpoint, but with API_BASE_URL and correct products endpoint
+      const response = await fetch(`${API_BASE_URL}/api/products/${editProdukId}`, {
+        method: 'PUT',
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(updateData)
+      });
+      const responseText = await response.text();
+      if (!response.ok) {
+        try {
+          const errorObj = JSON.parse(responseText);
+          throw new Error(`Gagal update produk: ${response.status} - ${JSON.stringify(errorObj)}`);
+        } catch (parseErr) {
+          throw new Error(`Gagal update produk: ${response.status} - ${responseText}`);
+        }
+      }
+      let result;
+      try {
+        result = JSON.parse(responseText);
+      } catch (parseErr) {
+        throw new Error('Response dari server tidak valid');
+      }
+      const updatedProductFromResult = result.product || result.data || result;
+      const finalUpdatedProduct = { ...updatedProductFromResult, id: editProdukId };
+      setProdukList(produkList.map((item) =>
+          item.id === editProdukId ? finalUpdatedProduct : item
+      ));
+      setEditProdukId(null);
+      setEditFormData({ name: "", category: "", unit_price: "", stock: 0, id: "" });
+      alert("Produk berhasil diupdate!");
+    } catch (err) {
+      console.error("Error updating product:", err);
+      setError(`Gagal menyimpan perubahan: ${err.message}`);
+      alert(`Error: ${err.message}`);
+    } finally {
+      setLoading(false);
     }
-
-    // Update state
-    const updatedProduct = result.product || result;
-    console.log('Updated product data:', updatedProduct);
-
-    const updatedList = produkList.map((item) =>
-      item.id === editProdukId ? updatedProduct : item
-    );
-    
-    setProdukList(updatedList);
-    setEditProdukId(null);
-    
-    // Reset edit form
-    setEditFormData({
-      name: "",
-      category: "",
-      unit_price: "",
-      stock: 0,
-    });
-
-    alert("Produk berhasil diupdate!");
-    
-  } catch (err) {
-    console.error('=== HANDLE SIMPAN ERROR ===');
-    console.error("Error updating product:", err);
-    console.error("Error stack:", err.stack);
-    
-    setError(`Gagal menyimpan perubahan: ${err.message}`);
-    alert(`Error: ${err.message}`);
-  } finally {
-    setLoading(false);
-  }
-};
+  };
 
   const handleIncrement = () => {
-    setEditFormData((prev) => ({ ...prev, stock: prev.stock + 1 }));
+    setEditFormData((prev) => ({ ...prev, stock: (parseInt(prev.stock, 10) || 0) + 1 }));
   };
   
   const handleDecrement = () => {
     setEditFormData((prev) => ({
       ...prev,
-      stock: prev.stock > 0 ? prev.stock - 1 : 0,
+      stock: (parseInt(prev.stock, 10) || 0) > 0 ? (parseInt(prev.stock, 10) || 0) - 1 : 0,
     }));
   };
 
-  // Function to retry fetching data
   const handleRetry = () => {
     fetchProduk();
   };
 
+  const handleHariBaru = async () => {
+    if (!manualDate) {
+      alert("Silakan pilih tanggal untuk snapshot 'Hari Baru'.");
+      return;
+    }
+    if (produkList.length === 0) {
+      alert("Tidak ada produk untuk diproses.");
+      return;
+    }
+    if (!confirm(`Yakin ingin menyimpan snapshot stok untuk tanggal ${manualDate} ke dalam histori?`)) {
+      return;
+    }
+    setLoadingHariBaru(true);
+    setError(null);
+    const auth = validateToken();
+    if (!auth) {
+      setError("Session expired. Silakan login ulang.");
+      setLoadingHariBaru(false);
+      return;
+    }
+    const { token } = auth;
+    const dateString = manualDate;
+    const productIds = produkList.map(p => p.id);
+
+    try {
+      // Using API_BASE_URL and the correct endpoint for "Hari Baru" (record daily stocks)
+      const response = await fetch(`${API_BASE_URL}/api/stocks/record-daily`, {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          date: dateString,
+          productIds: productIds,
+        }),
+      });
+
+      const responseText = await response.text(); // Get text first for better error reporting
+
+      if (!response.ok) {
+        let errorMessage = responseText;
+        if (response.status === 401) {
+          setError("Session expired atau token tidak valid. Silakan login ulang.");
+          localStorage.removeItem('token');
+          localStorage.removeItem('user');
+        } else {
+          try {
+            const errorObj = JSON.parse(responseText);
+            errorMessage = errorObj.message || responseText;
+          } catch (e) {
+            // Keep responseText as errorMessage
+          }
+          setError(`Gagal memproses "Hari Baru": ${errorMessage}`);
+        }
+        throw new Error(`Gagal memproses "Hari Baru": Status ${response.status} - ${errorMessage}`);
+      }
+      
+      alert(`Snapshot stok untuk tanggal ${dateString} berhasil disimpan untuk ${productIds.length} produk!`);
+      setManualDate('');
+    } catch (err) {
+      console.error('Error processing "Hari Baru":', err);
+      if (!error) setError(`Gagal memproses "Hari Baru": ${err.message}`);
+    } finally {
+      setLoadingHariBaru(false);
+    }
+  };
+
   return (
-    <div className="min-h-screen bg-white pt-[50px] relative px-4">
+    <div className="min-h-screen bg-white pt-[50px] relative px-4 pb-10">
       <h1 className="text-4xl font-extrabold text-center text-[#00408C] mb-10">Manajemen Stok</h1>
       
-      {/* Error Display */}
-      {error && (
+        {error && (
         <div className="max-w-6xl mx-auto mb-6 p-4 bg-red-100 border border-red-400 text-red-700 rounded-lg">
           <div className="flex justify-between items-center">
             <div>
@@ -478,10 +466,9 @@ export default function ManajemenStok() {
         </div>
       )}
 
-      {/* Loading Indicator */}
-      {loading && (
+      {(loading || loadingHariBaru) && (
         <div className="max-w-6xl mx-auto mb-6 p-4 bg-blue-100 border border-blue-400 text-blue-700 rounded-lg text-center">
-          <div>Loading...</div>
+          <div>Loading... {loadingHariBaru && '(Proses Hari Baru)'}</div>
         </div>
       )}
 
@@ -489,52 +476,68 @@ export default function ManajemenStok() {
         <h2 className="text-[#96ADD6] font-semibold mb-2">+ Tambah Produk</h2>
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-4">
           <input
-            type="text"
-            name="name"
-            placeholder="Nama Produk"
-            value={formData.name}
-            onChange={handleChange}
-            disabled={loading}
+            type="text" name="name" placeholder="Nama Produk" value={formData.name} onChange={handleChange}
+            disabled={loading || loadingHariBaru}
             className="border border-black text-black text-[14px] px-3 py-2 rounded-2xl disabled:opacity-50"
           />
           <input
-            type="text"
-            name="category"
-            placeholder="Kategori"
-            value={formData.category}
-            onChange={handleChange}
-            disabled={loading}
+            type="text" name="category" placeholder="Kategori" value={formData.category} onChange={handleChange}
+            disabled={loading || loadingHariBaru}
             className="border border-black text-black text-[14px] px-3 py-2 rounded-2xl disabled:opacity-50"
           />
           <input
-            type="number"
-            name="unit_price"
-            placeholder="Harga"
-            value={formData.unit_price}
-            onChange={handleChange}
-            disabled={loading}
+            type="number" name="unit_price" placeholder="Harga" value={formData.unit_price} onChange={handleChange}
+            disabled={loading || loadingHariBaru}
             className="border border-black text-black text-[14px] px-3 py-2 rounded-2xl disabled:opacity-50"
           />
           <input
-            type="number"
-            name="stock"
-            placeholder="Jumlah"
-            value={formData.stock}
-            onChange={handleChange}
-            disabled={loading}
+            type="number" name="stock" placeholder="Jumlah" value={formData.stock} onChange={handleChange}
+            disabled={loading || loadingHariBaru}
             className="border border-black text-black text-[14px] px-3 py-2 rounded-2xl disabled:opacity-50"
           />
         </div>
-        <button
-          onClick={handleTambahProduk}
-          disabled={loading}
-          className="text-[#96ADD6] text-[14px] bg-[#F2D7D3] px-6 py-1 rounded-3xl hover:bg-[#F9B8AF] font-medium disabled:opacity-50 disabled:cursor-not-allowed"
-        >
-          {loading ? 'Menyimpan...' : 'Simpan'}
-        </button>
+        <div className="flex items-center gap-4 mb-4">
+            <button
+                onClick={handleTambahProduk}
+                disabled={loading || loadingHariBaru}
+                className="text-[#96ADD6] text-[14px] bg-[#F2D7D3] px-6 py-1 rounded-3xl hover:bg-[#F9B8AF] font-medium disabled:opacity-50 disabled:cursor-not-allowed"
+            >
+                {loading ? 'Menyimpan...' : 'Simpan'}
+            </button>
+        </div>
+
+        <div className="mt-6 border-t pt-6">
+            <h2 className="text-[#00408C] font-semibold mb-3 text-lg">Snapshot Stok Harian (Hari Baru)</h2>
+            <div className="flex items-end gap-4">
+                <div>
+                    <label htmlFor="manualDateInput" className="block text-sm font-medium text-gray-700 mb-1">
+                        Pilih Tanggal Snapshot:
+                    </label>
+                    <input
+                        type="date"
+                        id="manualDateInput"
+                        value={manualDate}
+                        onChange={(e) => setManualDate(e.target.value)}
+                        disabled={loading || loadingHariBaru}
+                        className="border border-black text-black text-[14px] px-3 py-2 rounded-2xl focus:ring-[#00408C] focus:border-[#00408C] disabled:opacity-50"
+                    />
+                </div>
+                <button
+                    onClick={handleHariBaru}
+                    disabled={loadingHariBaru || loading || produkList.length === 0 || !manualDate}
+                    className="text-white text-[14px] bg-green-500 px-6 py-2 rounded-3xl hover:bg-green-600 font-medium disabled:opacity-50 disabled:cursor-not-allowed"
+                >
+                    {loadingHariBaru ? 'Memproses...' : 'Simpan Snapshot (Hari Baru)'}
+                </button>
+            </div>
+             {manualDate && produkList.length > 0 && (
+                <p className="text-xs text-gray-500 mt-2">
+                    Akan menyimpan snapshot stok untuk {produkList.length} produk pada tanggal {manualDate}.
+                </p>
+            )}
+        </div>
       </div>
 
-      {/* Table or Empty State */}
       {!loading && !error && produkList.length === 0 && (
         <div className="max-w-6xl mx-auto text-center py-8">
           <p className="text-gray-500">Belum ada produk. Tambahkan produk pertama Anda!</p>
@@ -558,86 +561,54 @@ export default function ManajemenStok() {
                 {produkList.map((produk) => (
                     <tr key={produk.id} className="bg-white">
                         <td className="py-2 px-4 text-center text-black w-[60px]">{produk.id}</td>
-
-                        {/* Kondisi jika sedang di-edit */}
                         {editProdukId === produk.id ? (
                         <>
                             <td className="py-2 px-4">
-                            <input
-                                type="text"
-                                value={editFormData.name}
-                                onChange={(e) => setEditFormData({ ...editFormData, name: e.target.value })}
-                                className=" w-[230px] border border-gray-300 px-2 py-0 rounded-2xl text-black"
-                            />
-                            </td>
+                            <input type="text" value={editFormData.name} onChange={(e) => setEditFormData({ ...editFormData, name: e.target.value })}
+                                disabled={loading || loadingHariBaru}
+                                className=" w-[230px] border border-gray-300 px-2 py-0 rounded-2xl text-black disabled:opacity-50"
+                            /></td>
                             <td className="py-2 px-4">
-                            <input
-                                type="text"
-                                value={editFormData.category}
-                                onChange={(e) => setEditFormData({ ...editFormData, category: e.target.value })}
-                                className="w-[230px] border border-gray-300 px-2 py-0 rounded-2xl text-black"
-                            />
-                            </td>
+                            <input type="text" value={editFormData.category} onChange={(e) => setEditFormData({ ...editFormData, category: e.target.value })}
+                                disabled={loading || loadingHariBaru}
+                                className="w-[230px] border border-gray-300 px-2 py-0 rounded-2xl text-black disabled:opacity-50"
+                            /></td>
                             <td className="py-2 px-4 text-center">
-                            <input
-                                type="number"
-                                value={editFormData.unit_price}
-                                onChange={(e) => setEditFormData({ ...editFormData, unit_price: e.target.value })}
-                                className="w-[150px] border border-gray-300 px-2 py-0 rounded-2xl text-black text-center"
-                            />
-                            </td>
+                            <input type="number" value={editFormData.unit_price} onChange={(e) => setEditFormData({ ...editFormData, unit_price: e.target.value })}
+                                disabled={loading || loadingHariBaru}
+                                className="w-[150px] border border-gray-300 px-2 py-0 rounded-2xl text-black text-center disabled:opacity-50"
+                            /></td>
                             <td className="py-2 px-4 text-center text-black">
                             <div className="flex justify-center items-center gap-2 w-[100px]">
-                                <button onClick={handleDecrement} className="px-2 text-md bg-[#96ADD6] rounded-2xl">-</button>
+                                <button onClick={handleDecrement} disabled={loading || loadingHariBaru} className="px-2 text-md bg-[#96ADD6] rounded-2xl disabled:opacity-50">-</button>
                                 <span>{editFormData.stock}</span>
-                                <button onClick={handleIncrement} className="px-2 text-md bg-[#96ADD6] rounded-2xl">+</button>
-                            </div>
-                            </td>
+                                <button onClick={handleIncrement} disabled={loading || loadingHariBaru} className="px-2 text-md bg-[#96ADD6] rounded-2xl disabled:opacity-50">+</button>
+                            </div></td>
                             <td className="py-2 px-4 text-center">
                             <div className="flex justify-center gap-2 w-[200px]">
-                                <button
-                                onClick={handleSimpan}
-                                disabled={loading}
+                                <button onClick={handleSimpan} disabled={loading || loadingHariBaru}
                                 className="bg-[#F9B8AF] hover:bg-[#96ADD6] text-[#E85234] px-4 py-1 rounded-full text-xs font-semibold disabled:opacity-50"
-                                >
-                                {loading ? 'Menyimpan...' : 'Simpan'}
-                                </button>
-                                <button
-                                onClick={() => setEditProdukId(null)}
-                                disabled={loading}
+                                >{loading ? 'Menyimpan...' : 'Simpan'}</button>
+                                <button onClick={() => setEditProdukId(null)} disabled={loading || loadingHariBaru}
                                 className="bg-gray-300 hover:bg-gray-400 text-gray-700 px-4 py-1 rounded-full text-xs font-semibold disabled:opacity-50"
-                                >
-                                Batal
-                                </button>
-                            </div>
-                            </td>
+                                >Batal</button>
+                            </div></td>
                         </>
                         ) : (
                         <>
                             <td className="py-2 px-4 text-black">{produk.name}</td>
                             <td className="py-2 px-4 text-black">{produk.category}</td>
-                            <td className="py-2 px-4 text-center text-black">
-                              Rp {(produk.unit_price || 0).toLocaleString()}
-                            </td>
-                            <td className="py-2 px-4 text-center text-black">{produk.stock || 0}</td>
+                            <td className="py-2 px-4 text-center text-black">Rp {(Number(produk.unit_price) || 0).toLocaleString()}</td>
+                            <td className="py-2 px-4 text-center text-black">{Number(produk.stock) || 0}</td>
                             <td className="py-2 px-4 text-center text-black">
                             <div className="flex justify-center gap-2">
-                                <button
-                                    onClick={() => handleEdit(produk)}
-                                    disabled={loading}
+                                <button onClick={() => handleEdit(produk)} disabled={loading || loadingHariBaru}
                                     className="bg-[#F2D7D3] hover:bg-[#F9B8AF] text-[#E85234] px-4 py-1 rounded-full text-xs font-semibold disabled:opacity-50"
-                                    >
-                                    Edit
-                                </button>
-                                <button
-                                    onClick={() => handleDelete(produk.id)}
-                                    disabled={loading}
+                                >Edit</button>
+                                <button onClick={() => handleDelete(produk.id)} disabled={loading || loadingHariBaru}
                                     className="bg-[#F2D7D3] hover:bg-[#F9B8AF] text-[#E85234] px-4 py-1 rounded-full text-xs font-semibold disabled:opacity-50"
-                                    >
-                                    Hapus
-                                </button>
-                            </div>
-                            </td>
+                                >Hapus</button>
+                            </div></td>
                         </>
                         )}
                     </tr>
