@@ -31,8 +31,7 @@ export default function ManajemenStok() {
       console.log('Fetching products for username:', username);
       console.log('Using token:', token.substring(0, 20) + '...');
 
-      const API_URL = process.env.REACT_APP_API_URL;
-      const response = await fetch(`${API_URL}/api/products/${username}`, {
+      const response = await fetch(`https://growmate-app.up.railway.app/api/products/${username}`, {
         method: 'GET',
         headers: {
           'Authorization': `Bearer ${token}`,
@@ -215,8 +214,7 @@ export default function ManajemenStok() {
 
       console.log('Sending product data:', produkData);
 
-      const API_URL = process.env.REACT_APP_API_URL;
-      const response = await fetch(`${API_URL}/api/products/create`, {
+      const response = await fetch('https://growmate-app.up.railway.app/api/products/create', {
         method: "POST",
         headers: {
           'Authorization': `Bearer ${token}`,
@@ -275,8 +273,7 @@ export default function ManajemenStok() {
 
       const { token } = auth;
       
-      const API_URL = process.env.REACT_APP_API_URL;
-      const response = await fetch(`${API_URL}/api/products/${id}`, {
+      const response = await fetch(`https://growmate-app.up.railway.app/api/products/${id}`, {
         method: 'DELETE',
         headers: {
           'Authorization': `Bearer ${token}`,
@@ -373,11 +370,7 @@ export default function ManajemenStok() {
       stock: stockNum
     };
 
-    console.log('Sending update data:', updateData);
-    console.log('Update URL:', `http://localhost:5000/api/products/${editProdukId}`);
-
-      const API_URL = process.env.REACT_APP_API_URL;
-      const response = await fetch(`${API_URL}/api/products/${edutProdukId}`, {
+      const response = await fetch(`https://growmate-app.up.railway.app/api/products/${edutProdukId}`, {
       method: 'PUT',
       headers: {
         'Authorization': `Bearer ${token}`,
