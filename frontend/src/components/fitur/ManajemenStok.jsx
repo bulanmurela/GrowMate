@@ -2,6 +2,12 @@
 
 import { useState, useEffect } from "react";
 
+// It's good practice to define API_URL outside the component or in a config file
+// For Next.js, you'd use process.env.NEXT_PUBLIC_API_URL
+// For Create React App, it's process.env.REACT_APP_API_URL
+// Let's assume a general approach for now, but you should configure this properly for your setup.
+const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || "https://growmate-app.up.railway.app"; // Fallback if env var isn't set
+
 export default function ManajemenStok() {
   const [produkList, setProdukList] = useState([]);
   const [loading, setLoading] = useState(false);
@@ -13,10 +19,39 @@ export default function ManajemenStok() {
     unit_price: "",
     stock: "",
   });
-  const [manualDate, setManualDate] = useState(''); // <--- NEW STATE FOR MANUAL DATE
+  const [manualDate, setManualDate] = useState('');
 
-  // ... (fetchProduk, useEffect, handleChange, validateToken, handleTambahProduk, handleDelete, edit states, handleEdit, handleSimpan, handleIncrement, handleDecrement, handleRetry functions remain the same) ...
-  // Paste your existing functions here. I'll just show the modified handleHariBaru and relevant JSX.
+  const validateToken = () => {
+    const token = localStorage.getItem('token');
+    const userItem = localStorage.getItem('user');
+    
+    if (!token || !userItem) {
+      // console.error("Token atau user tidak ditemukan di localStorage");
+      return false;
+    }
+    try {
+      const parsedUser = JSON.parse(userItem);
+      if (!parsedUser || !parsedUser.username) {
+        // console.error("Username tidak ditemukan dalam user data");
+        return false;
+      }
+      const tokenParts = token.split('.');
+      if (tokenParts.length === 3) {
+        const payload = JSON.parse(atob(tokenParts[1]));
+        const currentTime = Date.now() / 1000;
+        if (payload.exp && payload.exp < currentTime) {
+          // console.error("Token sudah expired");
+          localStorage.removeItem('token');
+          localStorage.removeItem('user');
+          return false;
+        }
+      }
+      return { token, user: parsedUser };
+    } catch (e) {
+      // console.error("Error parsing user data:", e);
+      return false;
+    }
+  };
 
   const fetchProduk = async () => {
     try {
@@ -33,8 +68,11 @@ export default function ManajemenStok() {
       const { token, user } = auth;
       const username = user.username;
       
-      const API_URL = process.env.REACT_APP_API_URL;
-      const res = await fetch(`${API_URL}/api/auth/register`, {
+      console.log('Fetching products for username:', username);
+      console.log('Using token:', token.substring(0, 20) + '...');
+
+      // Using the main branch's logic for fetching products, but with API_BASE_URL
+      const response = await fetch(`${API_BASE_URL}/api/products/${username}`, {
         method: 'GET',
         headers: {
           'Authorization': `Bearer ${token}`,
@@ -119,129 +157,118 @@ export default function ManajemenStok() {
     }));
   };
 
-  const validateToken = () => {
-    const token = localStorage.getItem('token');
-    const userItem = localStorage.getItem('user');
-    
-    if (!token || !userItem) {
-      return false;
-    }
-    try {
-      const parsedUser = JSON.parse(userItem);
-      if (!parsedUser.username) {
-        return false;
-      }
-      const tokenParts = token.split('.');
-      if (tokenParts.length === 3) {
-        const payload = JSON.parse(atob(tokenParts[1]));
-        const currentTime = Date.now() / 1000;
-        if (payload.exp && payload.exp < currentTime) {
-          localStorage.removeItem('token');
-          localStorage.removeItem('user');
-          return false;
-        }
-      }
-      return { token, user: parsedUser };
-    } catch (e) {
-      return false;
-    }
-  };
-
   const handleTambahProduk = async () => {
     try {
-        setLoading(true);
-        setError(null);
-        const auth = validateToken();
-        if (!auth) {
-          setError("Session expired. Silakan login ulang.");
-          return;
-        }
-        const { token, user } = auth;
-
-        if (!formData.name.trim() || !formData.category.trim() || !formData.unit_price || !formData.stock) {
-          alert("Semua field harus diisi!");
-          return;
-        }
-        const unitPrice = parseInt(formData.unit_price);
-        const stock = parseInt(formData.stock);
-        if (isNaN(unitPrice) || unitPrice <= 0) {
-          alert("Harga harus berupa angka yang valid dan lebih dari 0!");
-          return;
-        }
-        if (isNaN(stock) || stock < 0) {
-          alert("Stok harus berupa angka yang valid dan tidak boleh negatif!");
-          return;
-        }
-        const produkData = {
-          name: formData.name.trim(),
-          category: formData.category.trim(),
-          unit_price: unitPrice,
-          stock: stock,
-          username: user.username
-        };
-        const API_URL = process.env.REACT_APP_API_URL;
-        const res = await fetch(`${API_URL}/api/auth/register`, {
-          method: "POST",
-          headers: {
-            'Authorization': `Bearer ${token}`,
-            'Content-Type': 'application/json'
-          },
-          body: JSON.stringify(produkData)
-        });
-        const responseText = await response.text();
-        if (!response.ok) {
-          if (response.status === 401) {
-            setError("Session expired atau token tidak valid. Silakan login ulang.");
-            localStorage.removeItem('token');
-            localStorage.removeItem('user');
-            return;
-          }
-          throw new Error(`Gagal menambahkan produk: ${response.status} - ${responseText}`);
-        }
-        setFormData({ name: "", category: "", unit_price: "", stock: "" });
-        await fetchProduk();
-        alert("Produk berhasil ditambahkan!");
-      } catch (error) {
-        console.error("Error adding product:", error);
-        setError(`Gagal menambahkan produk: ${error.message}`);
-      } finally {
-        setLoading(false);
+      setLoading(true);
+      setError(null);
+      
+      const auth = validateToken();
+      if (!auth) {
+        setError("Session expired. Silakan login ulang.");
+        return;
       }
+      
+      const { token, user } = auth;
+
+      if (!formData.name.trim() || !formData.category.trim() || !formData.unit_price || !formData.stock) {
+        alert("Semua field harus diisi!");
+        return;
+      }
+
+      const unitPrice = parseInt(formData.unit_price);
+      const stock = parseInt(formData.stock);
+      
+      if (isNaN(unitPrice) || unitPrice <= 0) {
+        alert("Harga harus berupa angka yang valid dan lebih dari 0!");
+        return;
+      }
+      
+      if (isNaN(stock) || stock < 0) {
+        alert("Stok harus berupa angka yang valid dan tidak boleh negatif!");
+        return;
+      }
+
+      const produkData = {
+        name: formData.name.trim(),
+        category: formData.category.trim(),
+        unit_price: unitPrice,
+        stock: stock,
+        username: user.username
+      };
+
+      console.log('Sending product data:', produkData);
+
+      // Using the main branch's logic for adding products, but with API_BASE_URL
+      const response = await fetch(`${API_BASE_URL}/api/products/create`, {
+        method: "POST",
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(produkData)
+      });
+
+      console.log('Create response status:', response.status);
+      const responseText = await response.text();
+      console.log('Create raw response:', responseText);
+
+      if (!response.ok) {
+        if (response.status === 401) {
+          setError("Session expired atau token tidak valid. Silakan login ulang.");
+          localStorage.removeItem('token');
+          localStorage.removeItem('user');
+          return;
+        }
+        throw new Error(`Gagal menambahkan produk: ${response.status} - ${responseText}`);
+      }
+
+      setFormData({ name: "", category: "", unit_price: "", stock: "" });
+      await fetchProduk();
+      alert("Produk berhasil ditambahkan!");
+      
+    } catch (error) {
+      console.error("Error adding product:", error);
+      setError(`Gagal menambahkan produk: ${error.message}`);
+    } finally {
+      setLoading(false);
+    }
   };
 
   const handleDelete = async (id) => {
     if (!confirm("Yakin ingin menghapus produk ini?")) {
+      return;
+    }
+    try {
+      setLoading(true);
+      setError(null);
+      const auth = validateToken();
+      if (!auth) {
+        setError("Session expired. Silakan login ulang.");
         return;
       }
-      try {
-        setLoading(true);
-        setError(null);
-        const auth = validateToken();
-        if (!auth) {
-          setError("Session expired. Silakan login ulang.");
-          return;
+      const { token } = auth;
+      
+      // Using the main branch's logic for deleting products, but with API_BASE_URL
+      const response = await fetch(`${API_BASE_URL}/api/products/${id}`, {
+        method: 'DELETE',
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json'
         }
-        const { token } = auth;
-        const API_URL = process.env.REACT_APP_API_URL;
-        const res = await fetch(`${API_URL}/api/auth/register`, {
-          method: 'DELETE',
-          headers: {
-            'Authorization': `Bearer ${token}`,
-            'Content-Type': 'application/json'
-          }
-        });
-        if (!response.ok) {
-          const text = await response.text();
-          throw new Error(`Gagal menghapus produk: ${response.status} - ${text}`);
-        }
-        setProdukList(produkList.filter((produk) => produk.id !== id));
-        alert("Produk berhasil dihapus!");
-      } catch (err) {
-        console.error("Error deleting product:", err);
-        setError(`Gagal menghapus produk: ${err.message}`);
-      } finally {
-        setLoading(false);
+      });
+
+      if (!response.ok) {
+        const text = await response.text();
+        throw new Error(`Gagal menghapus produk: ${response.status} - ${text}`);
       }
+      setProdukList(produkList.filter((produk) => produk.id !== id));
+      alert("Produk berhasil dihapus!");
+    } catch (err) {
+      console.error("Error deleting product:", err);
+      setError(`Gagal menghapus produk: ${err.message}`);
+    } finally {
+      setLoading(false);
+    }
   };
   
   const [editProdukId, setEditProdukId] = useState(null);
@@ -260,79 +287,80 @@ export default function ManajemenStok() {
   
   const handleSimpan = async () => {
     try {
-        setLoading(true);
-        setError(null);
-        const auth = validateToken();
-        if (!auth) {
-          setError("Session expired. Silakan login ulang.");
-          return;
-        }
-        const { token } = auth;
-        if (!editFormData.name || editFormData.name.trim() === '') {
-          alert('Nama produk tidak boleh kosong!'); return;
-        }
-        if (!editFormData.category || editFormData.category.trim() === '') {
-          alert('Kategori tidak boleh kosong!'); return;
-        }
-        if (editFormData.unit_price === undefined || editFormData.unit_price === null || editFormData.unit_price === '') {
-          alert('Harga tidak boleh kosong!'); return;
-        }
-        if (editFormData.stock === undefined || editFormData.stock === null || editFormData.stock === '') {
-          alert('Stock tidak boleh kosong!'); return;
-        }
-        const unitPriceNum = parseFloat(editFormData.unit_price);
-        const stockNum = parseInt(editFormData.stock);
-        if (isNaN(unitPriceNum) || unitPriceNum < 0) {
-          alert('Harga harus berupa angka yang valid dan tidak boleh negatif!'); return;
-        }
-        if (isNaN(stockNum) || stockNum < 0) {
-          alert('Stock harus berupa angka yang valid dan tidak boleh negatif!'); return;
-        }
-        const updateData = {
-          name: editFormData.name.trim(),
-          category: editFormData.category.trim(),
-          unit_price: unitPriceNum,
-          stock: stockNum
-        };
-        const API_URL = process.env.REACT_APP_API_URL;
-        const res = await fetch(`${API_URL}/api/auth/register`, {
-          method: 'PUT',
-          headers: {
-            'Authorization': `Bearer ${token}`,
-            'Content-Type': 'application/json'
-          },
-          body: JSON.stringify(updateData)
-        });
-        const responseText = await response.text();
-        if (!response.ok) {
-          try {
-            const errorObj = JSON.parse(responseText);
-            throw new Error(`Gagal update produk: ${response.status} - ${JSON.stringify(errorObj)}`);
-          } catch (parseErr) {
-            throw new Error(`Gagal update produk: ${response.status} - ${responseText}`);
-          }
-        }
-        let result;
-        try {
-          result = JSON.parse(responseText);
-        } catch (parseErr) {
-          throw new Error('Response dari server tidak valid');
-        }
-        const updatedProductFromResult = result.product || result.data || result;
-        const finalUpdatedProduct = { ...updatedProductFromResult, id: editProdukId };
-        setProdukList(produkList.map((item) =>
-            item.id === editProdukId ? finalUpdatedProduct : item
-        ));
-        setEditProdukId(null);
-        setEditFormData({ name: "", category: "", unit_price: "", stock: 0, id: "" });
-        alert("Produk berhasil diupdate!");
-      } catch (err) {
-        console.error("Error updating product:", err);
-        setError(`Gagal menyimpan perubahan: ${err.message}`);
-        alert(`Error: ${err.message}`);
-      } finally {
-        setLoading(false);
+      setLoading(true);
+      setError(null);
+      const auth = validateToken();
+      if (!auth) {
+        setError("Session expired. Silakan login ulang.");
+        return;
       }
+      const { token } = auth;
+      if (!editFormData.name || editFormData.name.trim() === '') {
+        alert('Nama produk tidak boleh kosong!'); return;
+      }
+      if (!editFormData.category || editFormData.category.trim() === '') {
+        alert('Kategori tidak boleh kosong!'); return;
+      }
+      if (editFormData.unit_price === undefined || editFormData.unit_price === null || editFormData.unit_price === '') {
+        alert('Harga tidak boleh kosong!'); return;
+      }
+      if (editFormData.stock === undefined || editFormData.stock === null || editFormData.stock === '') {
+        alert('Stock tidak boleh kosong!'); return;
+      }
+      const unitPriceNum = parseFloat(editFormData.unit_price);
+      const stockNum = parseInt(editFormData.stock);
+      if (isNaN(unitPriceNum) || unitPriceNum < 0) {
+        alert('Harga harus berupa angka yang valid dan tidak boleh negatif!'); return;
+      }
+      if (isNaN(stockNum) || stockNum < 0) {
+        alert('Stock harus berupa angka yang valid dan tidak boleh negatif!'); return;
+      }
+      const updateData = {
+        name: editFormData.name.trim(),
+        category: editFormData.category.trim(),
+        unit_price: unitPriceNum,
+        stock: stockNum
+      };
+      
+      // Using the main branch's approach for endpoint, but with API_BASE_URL and correct products endpoint
+      const response = await fetch(`${API_BASE_URL}/api/products/${editProdukId}`, {
+        method: 'PUT',
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(updateData)
+      });
+      const responseText = await response.text();
+      if (!response.ok) {
+        try {
+          const errorObj = JSON.parse(responseText);
+          throw new Error(`Gagal update produk: ${response.status} - ${JSON.stringify(errorObj)}`);
+        } catch (parseErr) {
+          throw new Error(`Gagal update produk: ${response.status} - ${responseText}`);
+        }
+      }
+      let result;
+      try {
+        result = JSON.parse(responseText);
+      } catch (parseErr) {
+        throw new Error('Response dari server tidak valid');
+      }
+      const updatedProductFromResult = result.product || result.data || result;
+      const finalUpdatedProduct = { ...updatedProductFromResult, id: editProdukId };
+      setProdukList(produkList.map((item) =>
+          item.id === editProdukId ? finalUpdatedProduct : item
+      ));
+      setEditProdukId(null);
+      setEditFormData({ name: "", category: "", unit_price: "", stock: 0, id: "" });
+      alert("Produk berhasil diupdate!");
+    } catch (err) {
+      console.error("Error updating product:", err);
+      setError(`Gagal menyimpan perubahan: ${err.message}`);
+      alert(`Error: ${err.message}`);
+    } finally {
+      setLoading(false);
+    }
   };
 
   const handleIncrement = () => {
@@ -350,25 +378,20 @@ export default function ManajemenStok() {
     fetchProduk();
   };
 
-  // MODIFIED FUNCTION for "Hari Baru"
   const handleHariBaru = async () => {
-    if (!manualDate) { // <--- CHECK IF MANUAL DATE IS SELECTED
+    if (!manualDate) {
       alert("Silakan pilih tanggal untuk snapshot 'Hari Baru'.");
       return;
     }
-
     if (produkList.length === 0) {
       alert("Tidak ada produk untuk diproses.");
       return;
     }
-
     if (!confirm(`Yakin ingin menyimpan snapshot stok untuk tanggal ${manualDate} ke dalam histori?`)) {
       return;
     }
-
     setLoadingHariBaru(true);
     setError(null);
-
     const auth = validateToken();
     if (!auth) {
       setError("Session expired. Silakan login ulang.");
@@ -376,63 +399,58 @@ export default function ManajemenStok() {
       return;
     }
     const { token } = auth;
-
-    // Use the manualDate from the state
-    const dateString = manualDate; // manualDate should be in 'YYYY-MM-DD' format from input type="date"
-
+    const dateString = manualDate;
     const productIds = produkList.map(p => p.id);
 
     try {
-      const API_URL = process.env.REACT_APP_API_URL;
-      const res = await fetch(`${API_URL}/api/auth/register`, {
+      // Using API_BASE_URL and the correct endpoint for "Hari Baru" (record daily stocks)
+      const response = await fetch(`${API_BASE_URL}/api/stocks/record-daily`, {
         method: 'POST',
         headers: {
           'Authorization': `Bearer ${token}`,
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
-          date: dateString, // Send the manually selected date
+          date: dateString,
           productIds: productIds,
         }),
       });
 
-      const responseText = await response.text();
+      const responseText = await response.text(); // Get text first for better error reporting
 
       if (!response.ok) {
+        let errorMessage = responseText;
         if (response.status === 401) {
-            setError("Session expired atau token tidak valid. Silakan login ulang.");
-            localStorage.removeItem('token');
-            localStorage.removeItem('user');
+          setError("Session expired atau token tidak valid. Silakan login ulang.");
+          localStorage.removeItem('token');
+          localStorage.removeItem('user');
         } else {
-            try {
-                const errorObj = JSON.parse(responseText);
-                setError(`Gagal memproses "Hari Baru": ${errorObj.message || responseText}`);
-            } catch (e) {
-                setError(`Gagal memproses "Hari Baru": ${responseText}`);
-            }
+          try {
+            const errorObj = JSON.parse(responseText);
+            errorMessage = errorObj.message || responseText;
+          } catch (e) {
+            // Keep responseText as errorMessage
+          }
+          setError(`Gagal memproses "Hari Baru": ${errorMessage}`);
         }
-        throw new Error(`Gagal memproses "Hari Baru": Status ${response.status}`);
+        throw new Error(`Gagal memproses "Hari Baru": Status ${response.status} - ${errorMessage}`);
       }
       
       alert(`Snapshot stok untuk tanggal ${dateString} berhasil disimpan untuk ${productIds.length} produk!`);
-      setManualDate(''); // Optionally reset the date input after successful operation
-
+      setManualDate('');
     } catch (err) {
       console.error('Error processing "Hari Baru":', err);
       if (!error) setError(`Gagal memproses "Hari Baru": ${err.message}`);
-      // alert(`Error: ${err.message}`); // Alert is already shown or error is set
     } finally {
       setLoadingHariBaru(false);
     }
   };
 
-
   return (
     <div className="min-h-screen bg-white pt-[50px] relative px-4 pb-10">
       <h1 className="text-4xl font-extrabold text-center text-[#00408C] mb-10">Manajemen Stok</h1>
       
-      {/* ... (Error and Loading indicators remain the same) ... */}
-       {error && (
+        {error && (
         <div className="max-w-6xl mx-auto mb-6 p-4 bg-red-100 border border-red-400 text-red-700 rounded-lg">
           <div className="flex justify-between items-center">
             <div>
@@ -454,8 +472,6 @@ export default function ManajemenStok() {
         </div>
       )}
 
-
-      {/* Form Tambah Produk */}
       <div className="max-w-6xl mx-auto mb-8">
         <h2 className="text-[#96ADD6] font-semibold mb-2">+ Tambah Produk</h2>
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-4">
@@ -480,7 +496,7 @@ export default function ManajemenStok() {
             className="border border-black text-black text-[14px] px-3 py-2 rounded-2xl disabled:opacity-50"
           />
         </div>
-        <div className="flex items-center gap-4 mb-4"> {/* Added mb-4 for spacing below this row */}
+        <div className="flex items-center gap-4 mb-4">
             <button
                 onClick={handleTambahProduk}
                 disabled={loading || loadingHariBaru}
@@ -490,10 +506,9 @@ export default function ManajemenStok() {
             </button>
         </div>
 
-        {/* Section for "Hari Baru" */}
-        <div className="mt-6 border-t pt-6"> {/* Added some separation */}
+        <div className="mt-6 border-t pt-6">
             <h2 className="text-[#00408C] font-semibold mb-3 text-lg">Snapshot Stok Harian (Hari Baru)</h2>
-            <div className="flex items-end gap-4"> {/* Use items-end to align button with bottom of input */}
+            <div className="flex items-end gap-4">
                 <div>
                     <label htmlFor="manualDateInput" className="block text-sm font-medium text-gray-700 mb-1">
                         Pilih Tanggal Snapshot:
@@ -523,9 +538,6 @@ export default function ManajemenStok() {
         </div>
       </div>
 
-
-      {/* Table or Empty State */}
-      {/* ... (Your existing table rendering logic - make sure to pass loading || loadingHariBaru to disable edit/delete buttons in table too) ... */}
       {!loading && !error && produkList.length === 0 && (
         <div className="max-w-6xl mx-auto text-center py-8">
           <p className="text-gray-500">Belum ada produk. Tambahkan produk pertama Anda!</p>
