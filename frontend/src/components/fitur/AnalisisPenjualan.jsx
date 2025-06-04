@@ -66,6 +66,7 @@ const AnalisisPenjualan = () => {
         console.log("Fetching product names from /api/analysis/product-names...");
         const API_URL = process.env.NEXT_PUBLIC_API_URL;
         const res = await fetch(`${API_URL}/api/analysis/product-names`, {
+          method: 'GET',
           headers: { 'Authorization': `Bearer ${token}` },
         });
         console.log("Product names response status:", res.status);
@@ -81,6 +82,7 @@ const AnalisisPenjualan = () => {
       console.log("Fetching historical stock trends from /api/analysis/stock-trends...");
       const API_URL = process.env.NEXT_PUBLIC_API_URL;
       const res = await fetch(`${API_URL}/api/analysis/stock-trends`, {
+        method: 'GET',
         headers: { 'Authorization': `Bearer ${token}` },
       });
       console.log("Historical Stock trends response status:", trendsResponse.status);
@@ -96,6 +98,7 @@ const AnalisisPenjualan = () => {
         console.log("Fetching forecast data from /api/analysis/forecast-data...");
         const API_URL = process.env.NEXT_PUBLIC_API_URL;
         const res = await fetch(`${API_URL}/api/analysis/forecast-data`, {
+          method: 'GET',
           headers: { 'Authorization': `Bearer ${token}` },
         });
         console.log("Forecast data response status:", forecastResponse.status);
