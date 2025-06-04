@@ -10,6 +10,7 @@ const productRoutes = require("./routes/ProductRoutes");
 const stockRoutes = require('./routes/stockRoutes');
 const userRoutes = require('./routes/UserRoutes');
 const forecastRoutes = require('./routes/forecastRoutes'); 
+const analysisRoutes = require('./routes/analysisRoutes');
 
 // Middleware
 app.use(cors({
