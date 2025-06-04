@@ -10,6 +10,7 @@ router.get('/product-names', authMiddleware, analysisController.getAnalysisProdu
 
 // Route to get historical stock data for analysis chart
 // GET /api/analysis/stock-trends
+router.get('/product-names', authMiddleware, analysisController.getStockTrendsForAnalysis);
 router.get('/stock-trends', authMiddleware, analysisController.getStockTrendsForAnalysis);
 router.get('/forecast-data', authMiddleware, analysisController.getForecastDataForAnalysis); // NEW ROUTE
 
