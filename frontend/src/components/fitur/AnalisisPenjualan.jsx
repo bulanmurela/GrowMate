@@ -64,7 +64,7 @@ const AnalisisPenjualan = () => {
       // Fetch product names only if not already fetched
       if (produktData.length === 0) {
         console.log("Fetching product names from /api/analysis/product-names...");
-        const API_URL = process.env.REACT_APP_API_URL;
+        const API_URL = process.env.NEXT_PUBLIC_API_URL;
         const res = await fetch(`${API_URL}/api/analysis/product-names`, {
           headers: { 'Authorization': `Bearer ${token}` },
         });
@@ -79,7 +79,7 @@ const AnalisisPenjualan = () => {
       }
 
       console.log("Fetching historical stock trends from /api/analysis/stock-trends...");
-      const API_URL = process.env.REACT_APP_API_URL;
+      const API_URL = process.env.NEXT_PUBLIC_API_URL;
       const res = await fetch(`${API_URL}/api/analysis/stock-trends`, {
         headers: { 'Authorization': `Bearer ${token}` },
       });
@@ -94,7 +94,7 @@ const AnalisisPenjualan = () => {
 
       if (fetchForecasts) {
         console.log("Fetching forecast data from /api/analysis/forecast-data...");
-        const API_URL = process.env.REACT_APP_API_URL;
+        const API_URL = process.env.NEXT_PUBLIC_API_URL;
         const res = await fetch(`${API_URL}/api/analysis/forecast-data`, {
           headers: { 'Authorization': `Bearer ${token}` },
         });
@@ -200,7 +200,7 @@ const AnalisisPenjualan = () => {
     const { token } = auth;
     try {
         console.log("Calling /api/forecast/generate to trigger Python script");
-        const API_URL = process.env.REACT_APP_API_URL;
+        const API_URL = process.env.NEXT_PUBLIC_API_URL;
         const res = await fetch(`${API_URL}/api/forecast/generate`, {
             method: 'POST',
             headers: {
