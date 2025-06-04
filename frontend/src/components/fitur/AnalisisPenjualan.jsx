@@ -65,23 +65,23 @@ const AnalisisPenjualan = () => {
       if (produktData.length === 0) {
         console.log("Fetching product names from /api/analysis/product-names...");
         const API_URL = process.env.NEXT_PUBLIC_API_URL;
-        const res = await fetch(`${API_URL}/api/analysis/product-names`, {
+        const productNamesResponse = await fetch(`${API_URL}/api/analysis/product-names`, {
           method: 'GET',
           headers: { 'Authorization': `Bearer ${token}` },
         });
-        console.log("Product names response status:", res.status);
-        if (!res.ok) {
-          const errorText = await res.text();
-          throw new Error(`Gagal mengambil daftar produk: ${res.status} - ${errorText}`);
+        console.log("Product names response status:", productNamesResponse.status);
+        if (!productNamesResponse.ok) {
+          const errorText = await productNamesResponse.text();
+          throw new Error(`Gagal mengambil daftar produk: ${productNamesResponse.status} - ${errorText}`);
         }
-        const productNamesData = await res.json();
+        const productNamesData = await productNamesResponse.json();
         console.log("Product names data received:", productNamesData);
         setProduktData(Array.isArray(productNamesData) ? productNamesData : []);
       }
 
       console.log("Fetching historical stock trends from /api/analysis/stock-trends...");
       const API_URL = process.env.NEXT_PUBLIC_API_URL;
-      const res = await fetch(`${API_URL}/api/analysis/stock-trends`, {
+      const trendsResponse = await fetch(`${API_URL}/api/analysis/stock-trends`, {
         method: 'GET',
         headers: { 'Authorization': `Bearer ${token}` },
       });
@@ -97,7 +97,7 @@ const AnalisisPenjualan = () => {
       if (fetchForecasts) {
         console.log("Fetching forecast data from /api/analysis/forecast-data...");
         const API_URL = process.env.NEXT_PUBLIC_API_URL;
-        const res = await fetch(`${API_URL}/api/analysis/forecast-data`, {
+        const forecastResponse = await fetch(`${API_URL}/api/analysis/forecast-data`, {
           method: 'GET',
           headers: { 'Authorization': `Bearer ${token}` },
         });
@@ -204,16 +204,16 @@ const AnalisisPenjualan = () => {
     try {
         console.log("Calling /api/forecast/generate to trigger Python script");
         const API_URL = process.env.NEXT_PUBLIC_API_URL;
-        const res = await fetch(`${API_URL}/api/forecast/generate`, {
+        const generateResponse = await fetch(`${API_URL}/api/forecast/generate`, {
             method: 'POST',
             headers: {
                 'Authorization': `Bearer ${token}`,
                 'Content-Type': 'application/json',
             },
         });
-        console.log("Forecast generation response status:", response.status);
-        const result = await res.json();
-        if (!res.ok) {
+        console.log("Forecast generation response status:", generateResponse.status);
+        const result = await generateResponse.json();
+        if (!generateResponse.ok) {
             console.error("Forecast generation failed:", result);
             throw new Error(result.message || result.error || `Gagal membuat forecast: Status ${response.status}`);
         }
