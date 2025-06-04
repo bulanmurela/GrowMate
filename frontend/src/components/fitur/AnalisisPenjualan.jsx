@@ -65,22 +65,22 @@ const AnalisisPenjualan = () => {
       if (produktData.length === 0) {
         console.log("Fetching product names from /api/analysis/product-names...");
         const API_URL = process.env.REACT_APP_API_URL;
-        const res = await fetch(`${API_URL}/api/auth/register`, {
+        const res = await fetch(`${API_URL}/api/analysis/product-names`, {
           headers: { 'Authorization': `Bearer ${token}` },
         });
-        console.log("Product names response status:", productsNameResponse.status);
-        if (!productsNameResponse.ok) {
-          const errorText = await productsNameResponse.text();
-          throw new Error(`Gagal mengambil daftar produk: ${productsNameResponse.status} - ${errorText}`);
+        console.log("Product names response status:", res.status);
+        if (!res.ok) {
+          const errorText = await res.text();
+          throw new Error(`Gagal mengambil daftar produk: ${res.status} - ${errorText}`);
         }
-        const productNamesData = await productsNameResponse.json();
+        const productNamesData = await res.json();
         console.log("Product names data received:", productNamesData);
         setProduktData(Array.isArray(productNamesData) ? productNamesData : []);
       }
 
       console.log("Fetching historical stock trends from /api/analysis/stock-trends...");
       const API_URL = process.env.REACT_APP_API_URL;
-      const res = await fetch(`${API_URL}/api/auth/register`, {
+      const res = await fetch(`${API_URL}/api/analysis/stock-trends`, {
         headers: { 'Authorization': `Bearer ${token}` },
       });
       console.log("Historical Stock trends response status:", trendsResponse.status);
@@ -95,7 +95,7 @@ const AnalisisPenjualan = () => {
       if (fetchForecasts) {
         console.log("Fetching forecast data from /api/analysis/forecast-data...");
         const API_URL = process.env.REACT_APP_API_URL;
-        const res = await fetch(`${API_URL}/api/auth/register`, {
+        const res = await fetch(`${API_URL}/api/analysis/forecast-data`, {
           headers: { 'Authorization': `Bearer ${token}` },
         });
         console.log("Forecast data response status:", forecastResponse.status);
@@ -201,7 +201,7 @@ const AnalisisPenjualan = () => {
     try {
         console.log("Calling /api/forecast/generate to trigger Python script");
         const API_URL = process.env.REACT_APP_API_URL;
-        const res = await fetch(`${API_URL}/api/auth/register`, {
+        const res = await fetch(`${API_URL}/api/forecast/generate`, {
             method: 'POST',
             headers: {
                 'Authorization': `Bearer ${token}`,
@@ -209,8 +209,8 @@ const AnalisisPenjualan = () => {
             },
         });
         console.log("Forecast generation response status:", response.status);
-        const result = await response.json();
-        if (!response.ok) {
+        const result = await res.json();
+        if (!res.ok) {
             console.error("Forecast generation failed:", result);
             throw new Error(result.message || result.error || `Gagal membuat forecast: Status ${response.status}`);
         }
