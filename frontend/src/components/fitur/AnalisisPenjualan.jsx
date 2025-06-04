@@ -41,7 +41,7 @@ const AnalisisPenjualan = () => {
   const [historicalData, setHistoricalData] = useState([]);
   const [forecastData, setForecastData] = useState([]);
   const [combinedChartData, setCombinedChartData] = useState([]);
-  const [produktData, setProduktData] = useState([]); // Stores array of product name strings
+  const [productData, setproductData] = useState([]); // Stores array of product name strings
   const [selectedProduct, setSelectedProduct] = useState("all"); // Stores the selected product name string
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
@@ -64,7 +64,7 @@ const AnalisisPenjualan = () => {
 
     try {
       // Fetch product names only if not already fetched
-      if (produktData.length === 0) {
+      if (productData.length === 0) {
         console.log("Fetching product names from /api/analysis/product-names...");
         const API_URL = process.env.NEXT_PUBLIC_API_URL;
         const productNamesResponse = await fetch(`${API_URL}/api/analysis/product-names`, {
@@ -78,7 +78,7 @@ const AnalisisPenjualan = () => {
         }
         const productNamesData = await productNamesResponse.json();
         console.log("Product names data received:", productNamesData);
-        setProduktData(Array.isArray(productNamesData) ? productNamesData : []);
+        setproductData(Array.isArray(productNamesData) ? productNamesData : []);
       }
 
       console.log("Fetching historical stock trends from /api/analysis/stock-trends...");
@@ -172,16 +172,16 @@ const AnalisisPenjualan = () => {
 
 
   const calculateTotalStock = () => {
-    if (!historicalData || historicalData.length === 0 || !produktData || produktData.length === 0) return 0;
+    if (!historicalData || historicalData.length === 0 || !productData || productData.length === 0) return 0;
     let total = 0;
     if (selectedProduct === "all") {
       historicalData.forEach(dayData => {
-        produktData.forEach(productName => {
+        productData.forEach(productName => {
           total += Number(dayData[productName]) || 0;
         });
       });
     } else {
-      if (produktData.includes(selectedProduct)) {
+      if (productData.includes(selectedProduct)) {
         historicalData.forEach(dayData => {
           total += Number(dayData[selectedProduct]) || 0;
         });
@@ -260,11 +260,11 @@ const AnalisisPenjualan = () => {
         <select
           value={selectedProduct}
           onChange={(e) => setSelectedProduct(e.target.value)}
-          disabled={loading || loadingForecast || produktData.length === 0}
+          disabled={loading || loadingForecast || productData.length === 0}
           className="text-[#96ADD6] text-sm border rounded-2xl px-4 py-2 w-64 disabled:opacity-50 bg-white"
         >
           <option value="all">Semua Produk</option>
-          {produktData.map((productName) => (
+          {productData.map((productName) => (
             <option key={productName} value={productName}>
               {productName}
             </option>
@@ -300,7 +300,7 @@ const AnalisisPenjualan = () => {
               <Tooltip />
               <Legend />
               {selectedProduct === "all" ? (
-                produktData.flatMap((productName, index) => [
+                productData.flatMap((productName, index) => [
                   combinedChartData.some(d => d.hasOwnProperty(productName)) && ( // Check if historical dataKey exists
                     <Line 
                       key={`${productName}_hist`} type="monotone" dataKey={productName} name={`${productName} (Histori)`}
@@ -316,18 +316,18 @@ const AnalisisPenjualan = () => {
                   )
                 ].filter(Boolean)) // Filter out null/false values if a key doesn't exist
               ) : (
-                produktData.includes(selectedProduct) && [
+                productData.includes(selectedProduct) && [
                     combinedChartData.some(d => d.hasOwnProperty(selectedProduct)) && (
                         <Line 
                             key={`${selectedProduct}_hist`} type="monotone" dataKey={selectedProduct} name={`${selectedProduct} (Histori)`}
-                            stroke={lineColors[produktData.indexOf(selectedProduct) % lineColors.length || 0]}
+                            stroke={lineColors[productData.indexOf(selectedProduct) % lineColors.length || 0]}
                             activeDot={{ r: 6 }} strokeWidth={2} connectNulls
                         />
                     ),
                     combinedChartData.some(d => d.hasOwnProperty(`${selectedProduct}_forecast`)) && (
                         <Line 
                             key={`${selectedProduct}_forecast`} type="monotone" dataKey={`${selectedProduct}_forecast`} name={`${selectedProduct} (Prediksi)`}
-                            stroke={forecastLineColors[produktData.indexOf(selectedProduct) % forecastLineColors.length || 0]}
+                            stroke={forecastLineColors[productData.indexOf(selectedProduct) % forecastLineColors.length || 0]}
                             strokeDasharray="5 5" activeDot={{ r: 6 }} strokeWidth={2} connectNulls
                         />
                     )
