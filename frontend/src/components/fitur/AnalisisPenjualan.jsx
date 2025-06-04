@@ -3,6 +3,8 @@
 import { useEffect, useState } from "react";
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from "recharts";
 
+const API_URL = process.env.NEXT_PUBLIC_API_URL || "https://growmate-app.up.railway.app";
+
 // Helper function to validate token (ensure this is correctly imported or defined if it's in a shared utility)
 const validateToken = () => {
   const token = localStorage.getItem('token');
